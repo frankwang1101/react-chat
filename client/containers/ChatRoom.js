@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import * as actions from '../actions/actions'
+import { withRouter } from 'react-router-dom'
 import '../style/index.less'
 
 function renderMsgs(array) {
@@ -34,7 +35,7 @@ class ChatRoom extends React.Component {
     this.chooseName = this.chooseName.bind(this);
   }
   componentDidMount() {
-    this.props.user || this.props.init();
+    this.props.socket || this.props.init();
   }
   send() {
     const msg = this.target.value;
@@ -75,14 +76,14 @@ class ChatRoom extends React.Component {
   }
 }
 const mapStateToProp = (state) => {
-  const { chatReducer: { msgs, user,  socket } } = state;
+  const { chatReducer: { msgs, user, socket } } = state;
   return {
     msgs, user, socket
   }
 }
 const mapDispatchToProp = (dispatch) => {
   return {
-    init: () => {dispatch(actions.connectInit())},
+    init: () => { dispatch(actions.connectInit()) },
   }
 }
-export default connect(mapStateToProp, mapDispatchToProp)(ChatRoom);
+export default withRouter(connect(mapStateToProp, mapDispatchToProp)(ChatRoom));

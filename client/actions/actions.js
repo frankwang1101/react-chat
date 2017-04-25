@@ -25,3 +25,7 @@ export function emitMsg(socket, msg, user){
     msg,
   }));
 }
+
+export function checkJwt(){
+  
+}

@@ -1,9 +1,15 @@
 const express = require('express');
-const app = express();
 const path = require('path');
 const webpack = require('webpack');
 const webpackCfg = require('../webpack.config');
-const socketIo = require('socket.io');
+const routes = require('./Route/route')
+const socket = require('./Route/sockets')
+
+const app = express();
+
+routes(app);
+
+app.use('/server/uploads',express.static(path.join(__dirname, './uploads')));
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -30,51 +36,4 @@ if(env === 'development'){
 }
 
 const server = app.listen(3000);
-const io = socketIo.listen(server);
-
-const users = new Set();
-
-io.on('connection',(socket)=>{
-  socket.on('msg',(data)=>{
-    const json = JSON.parse(data);
-    io.sockets.emit('broadcast',JSON.stringify({
-      user:json.user,
-      msg:json.msg,
-      date:new Date(),
-      type:'msg'
-    }))
-  });
-  socket.on('login',(name) => {
-    let type = '';
-    if(users.has(name)){
-      type = 'exist';
-      socket.emit('login',JSON.stringify({
-        user:name,
-        date:new Date(),
-        type
-      }))
-    }else{
-      type = 'login';
-      socket.user = name;
-      users.add(name);
-      io.sockets.emit('broadcast',JSON.stringify({
-        user:name,
-        date:new Date(),
-        type
-      }))
-      socket.emit('login',JSON.stringify({
-        user:name,
-        date:new Date(),
-        type
-      }))
-    }
-    
-  });
-  socket.on('disconnect',() => {
-    users.delete(socket.user);
-    socket.broadcast.emit('broadcast',JSON.stringify({
-      user:socket.user,
-      type:'logout'
-    }));
-  })
-})
+socket(server);

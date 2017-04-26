@@ -5,6 +5,7 @@ import { createStore, applyMiddleware, combineReducers } from 'redux'
 import thunk from 'redux-thunk'
 import * as reducers from './reducers/reducers'
 import Router from './route/route'
+import './style/index.less'
 
 let store = createStore(combineReducers(reducers), applyMiddleware(thunk));
 

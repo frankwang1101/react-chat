@@ -15,6 +15,9 @@ module.exports = {
             exclunde: /node_modules/,
             loader: 'babel'
         },{
+            test: /\.css$/,
+            loader: "style!css"
+        },{
             test: /\.less$/,
             loader: "style!css!less"
         }

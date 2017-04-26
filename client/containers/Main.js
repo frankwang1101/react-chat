@@ -16,10 +16,13 @@ class App extends Component {
     this.menuClick = this.menuClick.bind(this)
   }
   componentWillMount() {
-
+    if(!this.props.userInfo){
+      this.props.checkJwt().then(null,() => {
+        this.props.history.replace('/login')
+      });
+    }
   }
   componentDidMount() {
-    this.props.checkJwt();
   }
   menuClick(item) {
     if (item) {
@@ -35,7 +38,7 @@ class App extends Component {
   render() {
     const { userInfo } = this.props
     let menuList = [];
-    if (!userInfo) {
+    if (userInfo) {
       menuList = [
         { path: "/", text: "Home Page" },
         { path: `/my/${userInfo._id}`, text: "My Page" },
@@ -55,7 +58,7 @@ class App extends Component {
           menuList.map((v) => {
             let result;
             if (v.path) {
-              result = <Menu.Item key={`header${v.text}`}><Link to={v.path}>{v.text}</Link></Menu.Item>
+              result = <Menu.Item key={`header${v.text}`}>{v.text}</Menu.Item>
             } else {
               result = <Menu.Item key={v.method} >{v.text}</Menu.Item>
             }
@@ -83,23 +86,21 @@ class App extends Component {
               defaultOpenKeys={['sub1']}
               style={{ height: '100%' }}
             >
-              <SubMenu key="sub1" title={<span><Icon type="user" />subnav 1</span>}>
+              <SubMenu key="sub1" title={<span><Icon type="user" />好友</span>}>
                 <Menu.Item key="1">option1</Menu.Item>
                 <Menu.Item key="2">option2</Menu.Item>
                 <Menu.Item key="3">option3</Menu.Item>
                 <Menu.Item key="4">option4</Menu.Item>
               </SubMenu>
-              <SubMenu key="sub2" title={<span><Icon type="laptop" />subnav 2</span>}>
+              <SubMenu key="sub2" title={<span><Icon type="laptop" />群组</span>}>
                 <Menu.Item key="5">option5</Menu.Item>
                 <Menu.Item key="6">option6</Menu.Item>
                 <Menu.Item key="7">option7</Menu.Item>
                 <Menu.Item key="8">option8</Menu.Item>
               </SubMenu>
-              <SubMenu key="sub3" title={<span><Icon type="notification" />subnav 3</span>}>
+              <SubMenu key="sub3" title={<span><Icon type="notification" />个人中心</span>}>
                 <Menu.Item key="9">option9</Menu.Item>
                 <Menu.Item key="10">option10</Menu.Item>
-                <Menu.Item key="11">option11</Menu.Item>
-                <Menu.Item key="12">option12</Menu.Item>
               </SubMenu>
             </Menu>
           </Sider>

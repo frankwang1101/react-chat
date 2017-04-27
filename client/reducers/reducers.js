@@ -9,11 +9,17 @@ export function chatReducer(state = initState, action) {
       const msgs = [...state.msgs, action.msg];
       return Object.assign({}, state, { msgs });
     }
-    case 'SETUSER': {
-      return Object.assign({}, state, { user: action.user });
-    }
     case 'SETSOCKET': {
+      if(state.user){
+        action.socket.emit('login',state.user);
+      }
       return Object.assign({}, state, { socket: action.socket });
+    }
+    case 'UPDATELOGININFO': {
+      if(state.socket){
+        state.socket.emit('login',action.info);
+      }
+      return Object.assign({}, state, { user: action.info });
     }
     default:
       return state;

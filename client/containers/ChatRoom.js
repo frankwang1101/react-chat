@@ -31,19 +31,16 @@ class ChatRoom extends React.Component {
   constructor(args) {
     super(args);
     this.send = this.send.bind(this);
-    this.chooseName = this.chooseName.bind(this);
+  }
+  componentWillMount(){
+    
   }
   componentDidMount() {
-    this.props.socket || this.props.init();
   }
   send() {
     const msg = this.target.value;
-    actions.emitMsg(this.props.socket, msg, this.props.user);
+    actions.emitMsg(this.props.socket, msg, this.props.user.nickname);
     this.target.value = '';
-  }
-  chooseName() {
-    this.props.socket.user = this.input.value;
-    this.props.socket.emit('login', this.input.value);
   }
   render() {
     const { msgs, user } = this.props
@@ -61,15 +58,6 @@ class ChatRoom extends React.Component {
             <button className="send-btn" onClick={this.send}>SEND</button>
           </div>
         </div>
-        {user ? '' :
-          <div className="mask">
-            <div>
-              <h3>enter user nickname~</h3>
-              <input type="text" ref={(t) => { this.input = t }} />
-              <button className="name-btn" onClick={this.chooseName}>this</button>
-            </div>
-          </div>
-        }
       </div>
     )
   }

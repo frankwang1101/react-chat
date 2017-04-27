@@ -16,13 +16,16 @@ class App extends Component {
     this.menuClick = this.menuClick.bind(this)
   }
   componentWillMount() {
-    if(!this.props.userInfo){
-      this.props.checkJwt().then(null,() => {
+    if(!this.props.user){
+      this.props.checkJwt().then(() => {
+         this.props.socket || this.props.init();  
+      },() => {
         this.props.history.replace('/login')
       });
     }
   }
   componentDidMount() {
+    
   }
   menuClick(item) {
     if (item) {
@@ -36,12 +39,12 @@ class App extends Component {
     }
   }
   render() {
-    const { userInfo } = this.props
+    const { user } = this.props
     let menuList = [];
-    if (userInfo) {
+    if (user) {
       menuList = [
         { path: "/", text: "Home Page" },
-        { path: `/my/${userInfo._id}`, text: "My Page" },
+        { path: `/my/${user._id}`, text: "My Page" },
         { path: "/post", text: "Add Post" },
         { text: "Logout", method: "logout" },
       ]
@@ -82,8 +85,6 @@ class App extends Component {
           <Sider width={200} style={{ background: '#fff' }}>
             <Menu
               mode="inline"
-              defaultSelectedKeys={['1']}
-              defaultOpenKeys={['sub1']}
               style={{ height: '100%' }}
             >
               <SubMenu key="sub1" title={<span><Icon type="user" />好友</span>}>
@@ -120,14 +121,15 @@ class App extends Component {
 }
 
 const mapStateToProp = (state) => {
-  const { userInfo } = state.chatReducer
-  return { userInfo }
+  const { user, socket } = state.chatReducer
+  return { user, socket }
 }
 
 const mapActionToDispatch = (dispatch) => ({
   logout: () => dispatch(Actions.logout()),
   updateInfo: (info) => dispatch(Actions.updateInfo(info)),
-  checkJwt: () => dispatch(Actions.checkJwt())
+  checkJwt: () => dispatch(Actions.checkJwt()),
+  init: () => { dispatch(Actions.connectInit()) },
 })
 
 export default withRouter(connect(mapStateToProp, mapActionToDispatch)(App));

@@ -25,10 +25,14 @@ class RegistrationForm extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
+    const history = this.props.history;
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
-        this.props.login(values).then(null, (msg) => {
+        this.props.login(values).then(() => {
+          console.log(this);
+          history.push('/');
+        }, (msg) => {
           utils.sendMessage('error', msg, 1.5);
         });
       }

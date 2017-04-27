@@ -17,7 +17,7 @@ export function checkJwt(token) {
           body: JSON.stringify({ _id: id, username: username })
         }).then(res => res.json()).then(result => {
           //存在用户数据，则存入state，否则去掉本地储存的token
-          if (result && result.keys().length > 0) {
+          if (result && Object.keys(result).length > 0) {
             resolve(result);
           } else {
             reject();
@@ -40,7 +40,7 @@ export function serverJwtValid(token, cb) {
         const _id = decode.info._id;
         const username = decode.info.username;
         User.checkjwt({ _id, username }).then(result => {
-          if(result && result.keys().length > 0){
+          if(result && Object.keys(result).length > 0){
             resolve(result)
           }else{
             reject();

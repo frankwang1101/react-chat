@@ -34,6 +34,21 @@ export function checkJwt() {
       if (!token) {
         reject();
       } else {
+        const headers = new Headers({ Authrorization: token });
+        fetch(`${config.url}${config.jwt}`,{
+          method: 'get',
+          headers,
+        })
+        .then(res => res.json()).then(result => {
+          if (result.success === true) {
+            localStorage.setItem('token', result.token);
+            dispatch({ type: 'UPDATELOGININFO', info:result.info })
+            resolve();
+          } else {
+            localStorage.removeItem('token');
+            reject();
+          }
+        })
         resolve(token);
       }
     })
@@ -51,6 +66,7 @@ export function login(data) {
           const token = result.info.token;
           localStorage.setItem('chat-token', token);
           dispatch({ type: 'USERLOGIN', data: result.info });
+          connectInit(dispatch);
           resolve();
         } else {
           reject(result.msg);

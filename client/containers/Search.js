@@ -12,28 +12,32 @@ class SearchComponent extends React.Component {
     super(args);
     this.add = this.add.bind(this);
     this.search = this.search.bind(this);
-    const friends = this.props.chatReducer.user.friends?this.props.chatReducer.user.friends.map((v) => v._id) : []
     this.state = {
       searchArr: [],
       searching: false,
       searched: false,
       error: false,
-      friends,
     }
   }
   componentWillMount() {
   }
   componentDidMount() {
   }
+  componentWillReceiveProps(np){
+  }
   add(id) {
     const { user, socket } = this.props;
-    socket.emit('targetMsg', JSON.stringify({ id,user}));
-    this.props.add(id, user._id).then( res => {
-      if(res === true){
-        Utils.sendMessage('success','添加好友成功',1)
-        this.state.friends.push(id);
-      }else{
-        Utils.sendMessage('error','添加好友失败',1)
+    const friends = user.friends?user.friends.map(v => v._id):[];
+    if(friends.indexOf(id) > -1){
+      Utils.sendMessage('error', '该用户已经是您的好友，请不要重复添加!', 1);
+      return;
+    }
+    socket.emit('targetMsg', JSON.stringify({ id, user }));
+    this.props.add(id, user._id).then(res => {
+      if (res === true) {
+        Utils.sendMessage('success', '添加好友成功', 1)
+      } else {
+        Utils.sendMessage('error', '添加好友失败', 1)
       }
     })
   }
@@ -62,7 +66,7 @@ class SearchComponent extends React.Component {
   }
   render() {
     const { user } = this.props
-    const sarr = Utils.renderSearchRes(this.state.searchArr, this.add);
+    const sarr = Utils.renderSearchRes(this.state.searchArr, this.add, user);
     return (
       <div className="" style={{ minHeight: 800, overflow: 'hidden', padding: '0 20px' }} >
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150 }} >

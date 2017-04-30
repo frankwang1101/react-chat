@@ -55,7 +55,7 @@ export function renderSearchRes(arr, add, from){
               <div className="user-info">
                 <div className="user-name">昵称: {v.nickname}</div>
                 <div className="user-id">用户名: {v.username}</div>
-                <div className="user-gen">性别: {v.gender} <Button type="primary" size="small" onClick={() => add(v._id)} ><Icon type="user-add" />添加</Button></div>
+                <div className="user-gen">性别: {v.gender} { from._id !== v._id ? <Button type="primary" size="small" onClick={() => add(v._id)}><Icon type="user-add" />添加</Button> : ''}</div>
              
               </div>
             </Col>

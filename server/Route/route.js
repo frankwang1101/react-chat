@@ -93,18 +93,22 @@ module.exports = (app) => {
         let token = req.headers['authrorization'];
          JwtUtil.serverJwtValid(token).then((resolve) => {
              token = JwtUtil.updateToken(resolve, token);
-             User.addFriend(param).then((res) => {
-                if(res.ok === 1 && res.n === 1){
+             User.addFriend(param).then((result) => {
+                if(result.ok === 1 && result.n === 1){
                     res.send({ success: true, msg: '' });
                 }
              }, (reject) => {
+                console.log('inner reject');
                 res.send({ success: false, msg: reject || '' });
              }).catch(e => {
+                 console.log(e);
                 res.send({ success: false, msg: e || '' });
              })
          }, reject => {
+             console.log('outer reject');
             res.send({ success: false, msg: reject || '' });
         }).catch(e => {
+            console.log(e);
            res.send({ success: false, msg: e || '' });
         });
     })

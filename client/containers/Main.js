@@ -16,6 +16,7 @@ class App extends Component {
     this.menuClick = this.menuClick.bind(this)
   }
   componentWillMount() {
+    console.log('will');
     if(!this.props.user){
       this.props.checkJwt().then(() => {
          this.props.socket || this.props.init();  

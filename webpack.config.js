@@ -12,7 +12,7 @@ module.exports = {
     loaders: [
         {
             test: /\.jsx?$/,
-            exclunde: /node_modules/,
+            exclude: /node_modules/,
             loader: 'babel'
         },{
             test: /\.css$/,

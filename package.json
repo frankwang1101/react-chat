@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "babel-loader": "^6.4.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "css-loader": "^0.28.0",
     "jsx-loader": "^0.13.2",
     "react-scripts": "0.9.5",

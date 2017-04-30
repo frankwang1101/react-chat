@@ -22,6 +22,12 @@ module.exports = function (server) {
         date: new Date(),
         type
       }))
+      const usersArr = [...users].map((v,i) => {
+        return v[1].user;
+      })
+      io.sockets.emit('statistic',JSON.stringify({
+        users: usersArr,
+      }))
     });
     socket.on('disconnect', () => {
       if(socket.user){
@@ -31,6 +37,12 @@ module.exports = function (server) {
           type: 'logout'
         }));
       }
+      const usersArr = [...users].map((v,i) => {
+        return v[1].user;
+      })
+      socket.broadcast.emit('statistic',JSON.stringify({
+        users: usersArr,
+      }))
     })
   })
 }

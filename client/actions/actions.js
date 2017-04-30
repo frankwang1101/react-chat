@@ -4,7 +4,9 @@ import config from '../config/config'
 export function connectInit(dispatch) {
   return (dispatch) => {
     const socket = io.connect();
+    console.log('开始设置socket');
     dispatch({ type: 'SETSOCKET', socket: socket });
+    console.log('设置socket结束');
     socket.on('broadcast', (res) => {
       const json = JSON.parse(res);
       dispatch({ type: 'ADDMSG', msg: json });
@@ -16,15 +18,64 @@ export function connectInit(dispatch) {
       } else {
         dispatch({ type: 'SETUSER', user: json.user });
       }
-    })
+    });
+    socket.on('statistic', (users) => {
+      const res = JSON.parse(users);
+      dispatch({ type: 'UPDATEONLINES', onlines: res.users });
+    });
   }
 }
 
-export function emitMsg(socket, msg, user) {
-  socket.emit('msg', JSON.stringify({
-    user,
-    msg,
-  }));
+export function emitMsg(socket, msg, user, target) {
+  if(!target){
+    socket.emit('msg', JSON.stringify({
+      user,
+      msg,
+    }));
+  }else{
+    socket.emit('targetMsg', JSON.stringify({
+      user,
+      msg,
+      target
+    }));
+  }
+}
+
+export function getRoom(id) {
+  return async dispatch => {
+    const k = await new Promise((r)=>{
+      console.log('lg4j');
+      r('asslk');
+    },3000)
+    console.log(k);
+    return 'false';
+  }
+}
+
+export function getUser(id) {
+  return async dispatch => {
+    const k = await new Promise((r)=>{
+      console.log('lg4j');
+      r('asslk');
+    },3000)
+    console.log(k);
+    return 'false';
+  }
+}
+
+export function search(keyword) {
+  return async dispatch => {
+    const json = await fetch(`${config.url}${config.search}`, {
+      method: 'post',
+      body: keyword,
+    });
+    const result = await json.json();
+    if(result.success === true){
+      return result.userResult;
+    }else{
+      return false;
+    }
+  }
 }
 
 export function checkJwt() {
@@ -35,21 +86,22 @@ export function checkJwt() {
         reject();
       } else {
         const headers = new Headers({ Authrorization: token });
-        fetch(`${config.url}${config.jwt}`,{
+        fetch(`${config.url}${config.jwt}`, {
           method: 'get',
           headers,
         })
-        .then(res => res.json()).then(result => {
-          if (result.success === true) {
-            localStorage.setItem('token', result.token);
-            dispatch({ type: 'UPDATELOGININFO', info:result.info })
-            resolve();
-          } else {
-            localStorage.removeItem('token');
-            reject();
-          }
-        })
-        resolve(token);
+          .then(res => res.json()).then(result => {
+            if (result.success === true) {
+              localStorage.setItem('token', result.token);
+              console.log('开始分发info');
+              dispatch({ type: 'UPDATELOGININFO', info: result.info })
+              console.log('分发info结束');
+              resolve();
+            } else {
+              localStorage.removeItem('token');
+              reject();
+            }
+          })
       }
     })
   }

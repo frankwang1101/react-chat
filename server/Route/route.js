@@ -55,4 +55,15 @@ module.exports = (app) => {
             console.log(e);
         })
     })
+    app.post('/search', par, (req, res) => {
+        const keyword = req.body;
+        User.findUser(keyword).then((result) => {
+            res.send({success: true, userResult: result});
+        }, reject => {
+            res.send({ success: false, msg: reject || '' });
+        }).catch(e => {
+            console.log(e);
+            res.send({ success: false, msg: e || '' });
+        })
+    })
 }

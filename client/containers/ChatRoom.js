@@ -1,76 +1,120 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import {Button, Spin, Alert} from 'antd'
 import * as actions from '../actions/actions'
 import { withRouter } from 'react-router-dom'
+import * as Utils from '../utils/utils'
 
-function renderMsgs(array) {
-  return array.map((v, i) => {
-    let res = '';
-    const key = `${v.user}${v.date}${i}`;
-    switch (v.type) {
-      case 'login': {
-        res = <div key={key}><span className="msg">{`${v.user}进入了聊天室...`}</span><span className="time">{v.date}</span></div>
-        break;
-      }
-      case 'logout': {
-        res = <div key={key}><span className="msg">{`${v.user}退出了聊天室...`}</span><span className="time">{v.date}</span></div>
-        break;
-      }
-      case 'msg': {
-        res = <div key={key}><span className="msg">{`${v.user}：${v.msg}`}</span><span className="time">{v.date}</span></div>
-        break;
-      }
-      default:
-        break;
-    }
-    return res;
-  })
-}
+
+
 
 class ChatRoom extends React.Component {
   constructor(args) {
     super(args);
     this.send = this.send.bind(this);
+    let loading = false;
+    if(this.props.type === 'room' || this.props.type === 'user'){
+      loading = true;
+    }
+    this.state = {
+      loading
+    }
   }
-  componentWillMount(){
-    
+  componentWillMount() {
+    const type = this.props.type;
+    const self = this;
+    if(type === 'room'){
+      this.props.getRoom(this.props.params.id).then((target) => {
+        self.setState({
+          loading : false,
+          target
+        })
+      });
+    }else if(type === 'user'){
+      this.props.getUser(this.props.params.id).then((target) => {
+        self.setState({
+          loading : false,
+          target
+        })
+      });
+    }
   }
   componentDidMount() {
+    console.log('mount..');
   }
   send() {
     const msg = this.target.value;
-    actions.emitMsg(this.props.socket, msg, this.props.user.nickname);
+    if(msg.length === 0){
+      Utils.sendMessage('error','请填写要发送的内容!')
+      return;
+    }
+    let target = null;
+    if(this.props.type !== 'public'){
+      target = this.state.target;
+    }
+    actions.emitMsg(this.props.socket, msg, this.props.user.nickname, target);
     this.target.value = '';
   }
   render() {
-    const { msgs, user } = this.props
+    const { msgs, user, onlines, type } = this.props
     return (
-      <div style={{ "position": "relative" }}>
-        <div className="main">
-          <div className="title">Welcome to ChatRoom~</div>
-          <div className="message-area">
-            {
-              renderMsgs(msgs)
-            }
-          </div>
-          <div className="send-area">
-            <textarea className="input-area" ref={(t) => { this.target = t }}></textarea>
-            <button className="send-btn" onClick={this.send}>SEND</button>
-          </div>
-        </div>
+      <div>
+        {
+          (this.state.loading && user)?(
+            <Spin tip="Loading...">
+              <Alert
+                message="Alert message title"
+                description="Further details about the context of this alert."
+                type="info"
+              />
+            </Spin>
+          ):(
+            <div className="wrap" >
+              <div className="main">
+                <div className="title">欢迎来到公告聊天室~~</div>
+                <div className="message-area">
+                  {
+                    Utils.renderMsgs(msgs)
+                  }
+                </div>
+                <div className="send-area">
+                  <textarea className="input-area" ref={(t) => { this.target = t }}></textarea>
+                  <Button className="send-btn" type="primary" onClick={this.send}>SEND</Button>
+                </div>
+              </div>
+              {
+                type !== 'user' ? (
+                  <div className="sider-bar">
+                    <div className="top-area">
+                      <div className="top-area-column">聊天室公告</div>
+                      <div className="top-area-content"></div>
+                    </div>
+                    <div className="bottom-area">
+                      <div className="bottom-area-column">在线人数({onlines.length})</div>
+                      <div className="bottom-area-content">{Utils.renderOnlines(onlines)}</div>
+                    </div>
+                  </div>
+                ) : ''
+              }
+            </div>
+          )
+        }
+        
       </div>
     )
   }
 }
 const mapStateToProp = (state) => {
-  const { chatReducer: { msgs, user, socket } } = state;
+  const { chatReducer: { msgs, user, socket, onlines } } = state;
   return {
-    msgs, user, socket
+    msgs, user, socket, onlines
   }
 }
 const mapDispatchToProp = (dispatch) => {
   return {
     init: () => { dispatch(actions.connectInit()) },
+    getRoom: (id) => dispatch(actions.getRoom(id)),
+    getUser: (id) => dispatch(actions.getUser(id)),
   }
 }
 export default withRouter(connect(mapStateToProp, mapDispatchToProp)(ChatRoom));

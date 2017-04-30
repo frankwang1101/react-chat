@@ -18,6 +18,7 @@ class App extends Component {
   componentWillMount() {
     if(!this.props.user){
       this.props.checkJwt().then(() => {
+        console.log('nikaishile');
          this.props.socket || this.props.init();  
       },() => {
         this.props.history.replace('/login')
@@ -40,69 +41,31 @@ class App extends Component {
   }
   render() {
     const { user } = this.props
-    let menuList = [];
-    if (user) {
-      menuList = [
-        { path: "/", text: "Home Page" },
-        { path: `/my/${user._id}`, text: "My Page" },
-        { path: "/post", text: "Add Post" },
-        { text: "Logout", method: "logout" },
-      ]
-    } else {
-      menuList = [
-        { path: "/", text: "Home" },
-        { path: "/add", text: "SignUp" },
-        { path: "/login", text: "Login" },
-      ]
-    }
-    const menu = (
-      <Menu onClick={this.menuClick}>
-        {
-          menuList.map((v) => {
-            let result;
-            if (v.path) {
-              result = <Menu.Item key={`header${v.text}`}>{v.text}</Menu.Item>
-            } else {
-              result = <Menu.Item key={v.method} >{v.text}</Menu.Item>
-            }
-            return result;
-          })
-        }
-      </Menu>
-    )
-
     return (
       <Layout>
         <Header className="header">
           <div className="logo" />
-          <Dropdown overlay={menu} className="header-dropdown">
-            <a className="ant-dropdown-link header-link" href="#">
-              <Icon type="bars" />
-            </a>
-          </Dropdown>
         </Header>
         <Layout>
           <Sider width={200} style={{ background: '#fff' }}>
             <Menu
               mode="inline"
               style={{ height: '100%' }}
+              theme={'dark'}
+              defaultSelectedKeys={['8']}
             >
               <SubMenu key="sub1" title={<span><Icon type="user" />好友</span>}>
-                <Menu.Item key="1">option1</Menu.Item>
-                <Menu.Item key="2">option2</Menu.Item>
-                <Menu.Item key="3">option3</Menu.Item>
-                <Menu.Item key="4">option4</Menu.Item>
+                
               </SubMenu>
               <SubMenu key="sub2" title={<span><Icon type="laptop" />群组</span>}>
-                <Menu.Item key="5">option5</Menu.Item>
-                <Menu.Item key="6">option6</Menu.Item>
-                <Menu.Item key="7">option7</Menu.Item>
-                <Menu.Item key="8">option8</Menu.Item>
+                
               </SubMenu>
               <SubMenu key="sub3" title={<span><Icon type="notification" />个人中心</span>}>
-                <Menu.Item key="9">option9</Menu.Item>
-                <Menu.Item key="10">option10</Menu.Item>
+                <Menu.Item key="9">搜索好友</Menu.Item>
+                <Menu.Item key="10">创建群组</Menu.Item>
+                <Menu.Item key="11">退出</Menu.Item>
               </SubMenu>
+              <Menu.Item key="8">公共聊天室</Menu.Item>
             </Menu>
           </Sider>
           <Layout>

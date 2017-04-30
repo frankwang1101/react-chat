@@ -1,37 +1,132 @@
-.main{
-  width: 600px;
-  height: 480px;
-  margin: 0 auto;
+.wrap{
+  position: relative;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background-color: #999;  
-  padding-bottom: 10px;
-  .title{
-    height: 50px;
-    line-height: 50px;
-    font-size: 30px;
-    color: #fff;
-  }
-  .message-area{
-    height: 60%;
-    width: 90%;
-    background-color: #fff;
-    margin: 0 auto;
-  }
-  .send-area{
-    height: 26%;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+  font-size: 16px;
+  .main{
+
+    width: 600px;
+    height: 800px;
     display: flex;
-    width: 90%;
-    margin: 0 auto;
-    textarea{
-      width: 80%;
-      height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #999;  
+    padding-bottom: 10px;
+    
+    .title{
+      height: 50px;
+      line-height: 50px;
+      font-size: 30px;
+      color: #fff;
     }
-    button{
-      margin-left: 10px;
-      width: 18%;
-      height: 100%;
+    .message-area{
+      height: 75%;
+      width: 90%;
+      background-color: #fff;
+      margin: 0 auto;
+      .msg-row{
+        .name{
+          color: #25c6b7;
+        }
+        .sys-msg{
+          height: 20px;
+          line-height: 20px;
+          display: block;
+          width: 100%;
+          text-align: center;
+        }
+      }
+    }
+    .send-area{
+      height: 16%;
+      display: flex;
+      width: 90%;
+      margin: 0 auto;
+      textarea{
+        width: 80%;
+        height: 100%;
+      }
+      button{
+        margin-left: 10px;
+        width: 18%;
+        height: 100%;
+      }
+    }
+  }
+  .sider-bar{
+    width: 200px;
+    height: 800px;
+    margin-left: 10px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px;
+    .top-area{
+      height: 30%;
+      .top-area-column{
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        text-align: center;
+        background-color: #eee;
+      }
+      .top-area-content{
+        height: 15%;
+        width: 100%;
+        word-break: break-all;
+      }
+    }
+    .bottom-area{
+      height: 70%;
+      .bottom-area-column{
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        text-align: center;
+        background-color: #eee;
+      }
+      .bottom-area-content{ 
+        height: 65%;
+        ul{
+          height: 100%;
+          overflow-y: auto;
+          li{
+            list-style: none;
+            height: 25px;
+            font-size: 12px;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            line-height: 25px;
+          }
+        }
+      }
+    }
+
+  }
+}
+.search-wrap{
+  .user-panel{
+    background-color: #fff;
+    padding: 5px;
+    display: flex;
+    align-items: space-between;
+    .user-avatar{
+      display: flex;
+      align-items: center;
+    }
+    .user-info{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .user-gen{
+        display: flex;
+        justify-content: space-between;
+      }
     }
   }
 }

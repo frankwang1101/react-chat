@@ -2,6 +2,8 @@ const initState = {
   msgs: [],
   user: null,
   socket: null,
+  room: {},
+  onlines: [],
 }
 export function chatReducer(state = initState, action) {
   switch (action.type) {
@@ -20,6 +22,9 @@ export function chatReducer(state = initState, action) {
         state.socket.emit('login',action.info);
       }
       return Object.assign({}, state, { user: action.info });
+    }
+    case 'UPDATEONLINES': {
+      return Object.assign({}, state, { onlines: action.onlines });
     }
     default:
       return state;

@@ -3,5 +3,6 @@ export default {
   signup: 'signup',
   login: 'login',
   jwt: 'checkjwt',
-  search: 'search'
+  search: 'search',
+  addFriend: 'addfriend',
 }

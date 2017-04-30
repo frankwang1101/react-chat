@@ -23,16 +23,19 @@ export function connectInit(dispatch) {
       const res = JSON.parse(users);
       dispatch({ type: 'UPDATEONLINES', onlines: res.users });
     });
+    socket.on('notification', (result) => {
+
+    })
   }
 }
 
 export function emitMsg(socket, msg, user, target) {
-  if(!target){
+  if (!target) {
     socket.emit('msg', JSON.stringify({
       user,
       msg,
     }));
-  }else{
+  } else {
     socket.emit('targetMsg', JSON.stringify({
       user,
       msg,
@@ -43,10 +46,10 @@ export function emitMsg(socket, msg, user, target) {
 
 export function getRoom(id) {
   return async dispatch => {
-    const k = await new Promise((r)=>{
+    const k = await new Promise((r) => {
       console.log('lg4j');
       r('asslk');
-    },3000)
+    }, 3000)
     console.log(k);
     return 'false';
   }
@@ -54,12 +57,13 @@ export function getRoom(id) {
 
 export function getUser(id) {
   return async dispatch => {
-    const k = await new Promise((r)=>{
-      console.log('lg4j');
-      r('asslk');
-    },3000)
-    console.log(k);
-    return 'false';
+    const json = await fetch(`${config.url}${config.search}/${id}`);
+    const result = await json.json();
+    if (result.success === true) {
+      return result.user;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -70,10 +74,36 @@ export function search(keyword) {
       body: keyword,
     });
     const result = await json.json();
-    if(result.success === true){
+    if (result.success === true) {
       return result.userResult;
-    }else{
+    } else {
       return false;
+    }
+  }
+}
+
+export function addApply(id, fid) {
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.addFriend}`, {
+        method: 'post',
+        body: JSON.stringify({ tid: id, fid: fid }),
+        headers,
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        const user = await getUser(fid)(dispatch);
+        if (user !== false) {
+          dispatch({ type: 'UPDATELOGININFO', info: user })
+        }
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 }

@@ -18,7 +18,6 @@ class App extends Component {
   componentWillMount() {
     if(!this.props.user){
       this.props.checkJwt().then(() => {
-        console.log('nikaishile');
          this.props.socket || this.props.init();  
       },() => {
         this.props.history.replace('/login')

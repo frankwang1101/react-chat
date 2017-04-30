@@ -18,9 +18,6 @@ export function chatReducer(state = initState, action) {
       return Object.assign({}, state, { socket: action.socket });
     }
     case 'UPDATELOGININFO': {
-      if(state.socket){
-        state.socket.emit('login',action.info);
-      }
       return Object.assign({}, state, { user: action.info });
     }
     case 'UPDATEONLINES': {

@@ -66,4 +66,46 @@ module.exports = (app) => {
             res.send({ success: false, msg: e || '' });
         })
     })
+    app.post('/search', par, (req, res) => {
+        const keyword = req.body;
+        User.findUser(keyword).then((result) => {
+            res.send({success: true, userResult: result});
+        }, reject => {
+            res.send({ success: false, msg: reject || '' });
+        }).catch(e => {
+            console.log(e);
+            res.send({ success: false, msg: e || '' });
+        })
+    })
+    app.get('/search/:id', (req, res) => {
+        const id = req.params.id;
+        User.getUserById(id).then((result) => {
+            res.send({success: true, user: result});
+        }, reject => {
+            res.send({ success: false, msg: reject || '' });
+        }).catch(e => {
+            console.log(e);
+            res.send({ success: false, msg: e || '' });
+        })
+    })
+    app.post('/addfriend', par, (req, res) => {
+        const param = JSON.parse(req.body);
+        let token = req.headers['authrorization'];
+         JwtUtil.serverJwtValid(token).then((resolve) => {
+             token = JwtUtil.updateToken(resolve, token);
+             User.addFriend(param).then((res) => {
+                if(res.ok === 1 && res.n === 1){
+                    res.send({ success: true, msg: '' });
+                }
+             }, (reject) => {
+                res.send({ success: false, msg: reject || '' });
+             }).catch(e => {
+                res.send({ success: false, msg: e || '' });
+             })
+         }, reject => {
+            res.send({ success: false, msg: reject || '' });
+        }).catch(e => {
+           res.send({ success: false, msg: e || '' });
+        });
+    })
 }

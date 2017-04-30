@@ -17,7 +17,10 @@ const User = mongoose.Schema({
     username: String,
     password: String,
     gender: String,
-    avatar: String
+    avatar: String,
+})
+User.add({
+    friends: [{ type:  mongoose.Schema.Types.ObjectId, ref: 'User' }]
 })
 User.plugin(createAt);
 User.index({ username: 1, unique: true });

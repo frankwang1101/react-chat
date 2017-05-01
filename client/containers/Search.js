@@ -32,7 +32,7 @@ class SearchComponent extends React.Component {
       Utils.sendMessage('error', '该用户已经是您的好友，请不要重复添加!', 1);
       return;
     }
-    socket.emit('targetMsg', JSON.stringify({ id, user }));
+    socket.emit('targetMsg', JSON.stringify({ id, user, type:'apply' }));
     this.props.add(id, user._id).then(res => {
       if (res === true) {
         Utils.sendMessage('success', '添加好友成功', 1)

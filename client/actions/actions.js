@@ -1,5 +1,38 @@
 import io from 'socket.io-client'
+import {notification, Button, message} from 'antd'
 import config from '../config/config'
+
+const openNotification = (id, from, dispatch) => {
+  const key = `open${Date.now()}`;
+  const btnClick = function (flag) {
+    if (flag) {
+      dispatch(addApply(id, from._id)).then( res => {
+        if(res === true){
+          message.success('添加好友成功', 1);
+        }else{
+          message.error('添加好友失败', 1);
+        }
+      })
+    }
+    notification.close(key);
+  };
+  const btn = (
+    <div>
+      <Button type="primary" size="small" onClick={ () => btnClick(true) }>
+        Confirm
+      </Button>
+      <Button type="primary" size="small" onClick={ () => btnClick(false) }>
+        Refuse
+      </Button>
+    </div>
+  );
+  notification.open({
+    message: 'Friend Apply',
+    description: `${from.nickname} want to become ur friend`,
+    btn,
+    key,
+  });
+};
 
 export function connectInit(dispatch) {
   return (dispatch) => {
@@ -16,6 +49,7 @@ export function connectInit(dispatch) {
       if (json.type === 'exist') {
         alert('用户名已存在!');
       } else {
+        socket.uid = json.user._id;
         dispatch({ type: 'SETUSER', user: json.user });
       }
     });
@@ -24,7 +58,12 @@ export function connectInit(dispatch) {
       dispatch({ type: 'UPDATEONLINES', onlines: res.users });
     });
     socket.on('notification', (result) => {
-
+      const res = JSON.stringify(result);
+      if (res.type === 'apply') {
+        openNotification(dispatch);
+      } else {
+        dispatch({ type: 'PRIVATEMSG', msg:{ user: res.from,token: res.token, msg: res.msg}});
+      }
     })
   }
 }
@@ -39,7 +78,7 @@ export function emitMsg(socket, msg, user, target) {
     socket.emit('targetMsg', JSON.stringify({
       user,
       msg,
-      target
+      id: target._id
     }));
   }
 }

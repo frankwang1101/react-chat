@@ -44,5 +44,25 @@ module.exports = function (server) {
         users: usersArr,
       }))
     })
+    socket.on('targetMsg', (obj) => {
+      const param = JSON.parse(obj);
+      let sendData = {};
+      switch(param.type){
+        case 'apply':
+          sendData = { type: param.type, from: param.user};
+          break;
+        case 'msg':
+        default:
+          sendData = { type: param.type, from: param.user, token:param.id , msg: param.msg};
+          break;
+      }
+      if(users.has(param.id)){
+        const t_socket = users.get(param.id);
+        if(param.type === 'msg'){
+          socket.emit('notification', JSON.stringify(sendData));
+        }
+        t_socket.emit('notification', JSON.stringify(sendData));
+      }
+    })
   })
 }

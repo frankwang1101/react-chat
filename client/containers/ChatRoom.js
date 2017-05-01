@@ -56,7 +56,13 @@ class ChatRoom extends React.Component {
     this.target.value = '';
   }
   render() {
-    const { msgs, user, onlines, type } = this.props
+    const { msgs, user, onlines, type } = this.props;
+    let title = '欢迎来到公告聊天室~~';
+    if(type === 'user'){
+      title = this.state.target.nickname;
+    }else if(type === 'room'){
+      
+    }
     return (
       <div>
         {
@@ -71,7 +77,7 @@ class ChatRoom extends React.Component {
           ):(
             <div className="wrap" >
               <div className="main">
-                <div className="title">欢迎来到公告聊天室~~</div>
+                <div className="title">{title}</div>
                 <div className="message-area">
                   {
                     Utils.renderMsgs(msgs)

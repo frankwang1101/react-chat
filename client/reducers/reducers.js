@@ -23,6 +23,17 @@ export function chatReducer(state = initState, action) {
     case 'UPDATEONLINES': {
       return Object.assign({}, state, { onlines: action.onlines });
     }
+    case 'PRIVATEMSG': {
+      const user = action.msg.user;
+      let obj = {};
+      if(!state[action.msg.token]){
+        obj[action.msg.token] = [{msg: action.msg.msg, type:'msg' ,user ,date:new Date()}]
+      }else{
+        state[action.msg.token].push({msg: action.msg.msg, type:'msg' ,user ,date:new Date()});
+        obj[action.msg.token] = state[action.msg.id]
+      } 
+      return Object.assign({}, state, obj);
+    }
     default:
       return state;
   }

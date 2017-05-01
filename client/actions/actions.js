@@ -58,9 +58,9 @@ export function connectInit(dispatch) {
       dispatch({ type: 'UPDATEONLINES', onlines: res.users });
     });
     socket.on('notification', (result) => {
-      const res = JSON.stringify(result);
+      const res = JSON.parse(result);
       if (res.type === 'apply') {
-        openNotification(dispatch);
+        openNotification(res.token ,res.from, dispatch);
       } else {
         dispatch({ type: 'PRIVATEMSG', msg:{ user: res.from,token: res.token, msg: res.msg}});
       }
@@ -78,7 +78,8 @@ export function emitMsg(socket, msg, user, target) {
     socket.emit('targetMsg', JSON.stringify({
       user,
       msg,
-      id: target._id
+      id: target._id,
+      type: 'msg',
     }));
   }
 }

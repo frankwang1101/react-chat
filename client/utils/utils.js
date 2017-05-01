@@ -1,5 +1,6 @@
 import React from 'react'
-import { message, Row, Col, Button, Icon } from 'antd'
+import { message, Row, Col, Button, Icon, notification } from 'antd'
+import moment from 'moment'
 
 export function sendMessage(type, msg, dur, cb) {
   message[type](msg, dur, cb);
@@ -28,7 +29,7 @@ export function renderMsgs(array) {
       }
       case 'msg': {
         res = <div className="msg-row" key={key}>
-          <div><span className="name">{`${v.user}`}</span><span className="time">{`  ${v.date}`}</span></div>
+          <div><span className="name">{`${v.user}`}</span><span className="time">{`  ${moment(v.date).format('YYYY-MM-DD HH:mm:ss')}`}</span></div>
           <pre>{v.msg}</pre>
         </div>
         break;
@@ -70,3 +71,22 @@ export function renderSearchRes(arr, add, from){
     </Row>
   )
 }
+
+export function openNotification(newMessage, history) {
+  const key = `open${Date.now()}`;
+  const btnClick = function () {
+    notification.close(key);
+    history.push(`/${newMessage.type}/${newMessage.token}`);
+  };
+  const btn = (
+    <Button type="primary" size="small" onClick={ () => btnClick() }>
+      Check
+    </Button>
+  );
+  notification.open({
+    message: `${newMessage.user}`,
+    description: newMessage.msg,
+    btn,
+    key,
+  });
+};

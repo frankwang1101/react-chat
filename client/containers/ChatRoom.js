@@ -56,12 +56,16 @@ class ChatRoom extends React.Component {
     this.target.value = '';
   }
   render() {
-    const { msgs, user, onlines, type } = this.props;
+    const { msgs, user, onlines, type, userMsgs } = this.props;
+    let msgArr = [];
     let title = '欢迎来到公告聊天室~~';
-    if(type === 'user'){
+    if(type === 'user' && this.state.target){
       title = this.state.target.nickname;
+      msgArr = userMsgs[this.props.params.id] || [];
     }else if(type === 'room'){
       
+    }else{
+      msgArr = msgs;
     }
     return (
       <div>
@@ -80,7 +84,7 @@ class ChatRoom extends React.Component {
                 <div className="title">{title}</div>
                 <div className="message-area">
                   {
-                    Utils.renderMsgs(msgs)
+                    Utils.renderMsgs(msgArr)
                   }
                 </div>
                 <div className="send-area">
@@ -111,9 +115,9 @@ class ChatRoom extends React.Component {
   }
 }
 const mapStateToProp = (state) => {
-  const { chatReducer: { msgs, user, socket, onlines } } = state;
+  const { chatReducer: { msgs, user, socket, onlines, userMsgs, roomMsgs } } = state;
   return {
-    msgs, user, socket, onlines
+    msgs, user, socket, onlines, userMsgs, roomMsgs
   }
 }
 const mapDispatchToProp = (dispatch) => {

@@ -4,6 +4,8 @@ const initState = {
   socket: null,
   room: {},
   onlines: [],
+  userMsgs: {},
+  roomMsgs: {},
 }
 export function chatReducer(state = initState, action) {
   switch (action.type) {
@@ -26,13 +28,13 @@ export function chatReducer(state = initState, action) {
     case 'PRIVATEMSG': {
       const user = action.msg.user;
       let obj = {};
-      if(!state[action.msg.token]){
+      if(!state.userMsgs[action.msg.token]){
         obj[action.msg.token] = [{msg: action.msg.msg, type:'msg' ,user ,date:new Date()}]
       }else{
-        state[action.msg.token].push({msg: action.msg.msg, type:'msg' ,user ,date:new Date()});
-        obj[action.msg.token] = state[action.msg.id]
+        state.userMsgs[action.msg.token].push({msg: action.msg.msg, type:'msg' ,user ,date:new Date()});
+        obj[action.msg.token] = state.userMsgs[action.msg.token]
       } 
-      return Object.assign({}, state, obj);
+      return Object.assign({}, state, {userMsgs: obj, newMessage:{type:'user', ...action.msg}});
     }
     default:
       return state;

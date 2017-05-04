@@ -95,6 +95,14 @@ export function getRoom(id) {
   }
 }
 
+export function logout(){
+  return async dispatch => {
+    localStorage.removeItem('chat-token');
+    dispatch({ type: 'UPDATELOGININFO', info: {} });
+    return true;
+  }
+}
+
 export function getUser(id) {
   return async dispatch => {
     const json = await fetch(`${config.url}${config.search}/${id}`);

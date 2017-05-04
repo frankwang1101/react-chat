@@ -3,6 +3,8 @@ import moment from 'moment'
 import objectIdToTimestamp from 'objectid-to-timestamp'
 import {DBCONFIG} from '../config/config'
 
+const ObjectId = mongoose.Schema.Types.ObjectId;
+
 var db = mongoose.createConnection(DBCONFIG.HOST, DBCONFIG.DATABASE, DBCONFIG.PORT);
 db.on('error', console.error.bind(console, 'connection error:'))
 const createAt = (schema, object) => {
@@ -20,9 +22,56 @@ const User = mongoose.Schema({
     avatar: String,
 })
 User.add({
-    friends: [{ type:  mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    friends: [{ type:  ObjectId, ref: 'User' }]
 })
 User.plugin(createAt);
 User.index({ username: 1, unique: true });
 
 exports.UserModel = db.model('User', User);
+
+const Room = mongoose.Schema({
+    roomname: String,
+    roomdesc: String,
+    needCheck: Boolean,
+    administrators: [{ type:  ObjectId, ref: 'User' }],
+    members: [{ type:  ObjectId, ref: 'User' }],
+    owner: { type:  ObjectId, ref: 'User' }
+})
+
+Room.plugin(createAt);
+
+Room.statics.getUserRoom = uid => {
+    return this
+        .find({"$or":[{administrators:ObjectId(uid)},{owner:ObjectId(uid)},{members:ObjectId(uid)}]})
+        .exec();
+}
+
+exports.RoomModel = db.model('Room',Room);
+
+const Message = mongoose.Schema({
+    title: String,
+    content: String,
+    type: String,
+    isDeal: Boolean,
+    data: String,
+    result: Boolean,
+    toUser: { type: ObjectId, ref: 'User'},
+})
+
+Message.plugin(createAt);
+
+Message.statics.getMessagesByUserId = uid => {
+    return this
+        .find({toUser:ObjectId(uid)})
+        .select('-toUser')
+        .exec();
+};
+
+Message.statics.getMessagesByUserId = uid => {
+    return this
+          .where({toUser:ObjectId(uid),isDeal:false})
+          .count()
+          .exec()
+};
+
+exports.MessageModel = db.model('Message',Message);

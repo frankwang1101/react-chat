@@ -39,7 +39,9 @@ class App extends Component {
     if (item) {
       switch (item.key) {
         case 'logout':
-          this.props.logout();
+          this.props.logout().then(() => {
+            this.props.history.push('/login');
+          });
           break;
         default:
           break;
@@ -64,6 +66,7 @@ class App extends Component {
               style={{ height: '100%' }}
               theme={'dark'}
               defaultSelectedKeys={['8']}
+              onClick={this.menuClick}
             >
               <SubMenu key="sub1" title={<span><Icon type="user" />好友</span>}>
               {
@@ -75,7 +78,7 @@ class App extends Component {
               <SubMenu key="sub3" title={<span><Icon type="notification" />个人中心</span>}>
                 <Menu.Item key="9"><Link to="/search" >搜索好友</Link></Menu.Item>
                 <Menu.Item key="10">创建群组</Menu.Item>
-                <Menu.Item key="11">退出</Menu.Item>
+                <Menu.Item key="logout">退出</Menu.Item>
               </SubMenu>
               <Menu.Item key="8"><Link to="/" >公共聊天室</Link></Menu.Item>
             </Menu>

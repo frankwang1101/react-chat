@@ -1,4 +1,5 @@
 const socketIo = require('socket.io');
+const Message = require('../Model/Message')
 
 module.exports = function (server) {
   const io = socketIo.listen(server);
@@ -59,11 +60,33 @@ module.exports = function (server) {
             break;
         }
         if(users.has(param.id)){
+          //在线，则发送即时消息
           const t_socket = users.get(param.id);
           if(param.type === 'msg'){
             socket.emit('notification', JSON.stringify(Object.assign({}, sendData, { token:param.id })));
           }
           t_socket.emit('notification', JSON.stringify(Object.assign({}, sendData, { token:socket.user._id })));
+        }else{
+          //离线，保存一下message
+          if(param.type === 'apply'){
+            Message.create({
+              title: '好友申请',
+              content: `${param.user.nickname}想要添加你为好友`,
+              type: 'friendApply',
+              isDeal: false,
+              data: JSON.stringify(param.user),
+              toUser: param.id,
+            })
+          }else{
+            Message.create({
+              title: '',
+              content: param.msg,
+              type: 'msg',
+              data: new Date().toString(),
+              toUser: param.id,
+              isDeal: false,
+            })
+          }
         }
       }catch(e){
         console.log(e);

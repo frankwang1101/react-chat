@@ -68,7 +68,7 @@ class SearchComponent extends React.Component {
     const { user } = this.props
     const sarr = Utils.renderSearchRes(this.state.searchArr, this.add, user);
     return (
-      <div className="" style={{ minHeight: 800, overflow: 'hidden', padding: '0 20px' }} >
+      <div className="" style={{ minHeight:'calc(100vh - 66px - 64px)', overflow: 'hidden', padding: '0 20px' }} >
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150 }} >
           <Search
             placeholder="input search text"

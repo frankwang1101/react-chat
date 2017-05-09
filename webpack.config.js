@@ -20,7 +20,10 @@ module.exports = {
         },{
             test: /\.less$/,
             loader: "style!css!less"
-        }
+        },{
+          test: /\.(png|jpg)$/,
+          loader: 'url-loader?limit=8192&name=[name].[hash:8].[ext]'
+        },
     ]
   },
   plugins: [

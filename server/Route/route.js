@@ -1,5 +1,7 @@
 import parser from 'body-parser'
 import User from '../Model/User'
+import Room from '../Model/Room'
+import Message from '../Model/Message'
 import * as JwtUtil from '../utils/jwtUtil'
 import multer from 'multer'
 const storage = multer.diskStorage({
@@ -33,7 +35,10 @@ module.exports = (app) => {
                     delete info.password;
                     const token = JwtUtil.addToken(info, req);
                     info.token = token;
-                    res.send({ success: true, info: info });
+                    Message.getUndealCount(info._id).then(unread => {
+                        info.unread = unread;
+                        res.send({ success: true, info: info });
+                    });
                 } else {
                     res.send({ success: false, msg: "wrong username or password!" });
                 }
@@ -47,8 +52,12 @@ module.exports = (app) => {
     app.get('/checkjwt', (req, res) => {
         let token = req.headers['authrorization'];
         JwtUtil.serverJwtValid(token).then((resolve) => {
+            resolve = resolve.toObject();
             token = JwtUtil.updateToken(resolve, token);
-            res.send({ success: true, info: resolve, token: token });
+            Message.getUndealCount(resolve._id).then(unread => {
+                resolve.unread = unread;
+                res.send({ success: true, info: resolve, token: token });
+            });
         }, reject => {
             res.send({ success: false, msg: reject || '' });
         }).catch(e => {
@@ -111,5 +120,29 @@ module.exports = (app) => {
             console.log(e);
            res.send({ success: false, msg: e || '' });
         });
+    })
+    app.get('/messages/:id',async (req, res) => {
+        const id = req.params.id;
+        let token = req.headers['authrorization'];
+        const resolve = await JwtUtil.serverJwtValid(token);
+        if(resolve){
+           token = JwtUtil.updateToken(resolve, token);
+           const messages = await Message.getMessagesByUserId(id);
+           res.send({success: true, messages });
+        }else{
+            res.send({ success: false, msg: '获取消息列表失败!' });
+        }
+    });
+    app.get('/dealmessages/:id', async (req, res) => {
+        const id = req.params.id;
+        let token = req.headers['authrorization'];
+        const resolve = await JwtUtil.serverJwtValid(token);
+        if(resolve){
+           token = JwtUtil.updateToken(resolve, token);
+           await Message.setDeal(id);
+           res.send({success: true});
+        }else{
+            res.send({ success: false, msg: '更新消息状态失败!' });
+        }
     })
 }

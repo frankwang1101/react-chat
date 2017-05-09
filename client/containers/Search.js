@@ -68,7 +68,7 @@ class SearchComponent extends React.Component {
     const { user } = this.props
     const sarr = Utils.renderSearchRes(this.state.searchArr, this.add, user);
     return (
-      <div className="" style={{ minHeight:'calc(100vh - 66px - 64px)', overflow: 'hidden', padding: '0 20px' }} >
+      <div className="bg" style={{ minHeight:'calc(100vh - 66px - 64px )', overflow: 'hidden', padding: '0 20px' }} >
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150 }} >
           <Search
             placeholder="input search text"
@@ -90,7 +90,7 @@ class SearchComponent extends React.Component {
                 (<div className="search-wrap" >
                   {sarr}
                 </div>) : (
-                  <div className="wrap" >
+                  <div className="wrap" style={{background:'hsla(0,0%,100%,.25) border-box',minHeight:'calc(100vh - 64px - 66px - 150px)',fontSize:'26px',color:'#fff'}}>
                     请输入搜索内容
                   </div>
                 )

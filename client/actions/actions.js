@@ -1,15 +1,15 @@
 import io from 'socket.io-client'
-import {notification, Button, message} from 'antd'
+import { notification, Button, message } from 'antd'
 import config from '../config/config'
 
 const openNotification = (id, from, dispatch) => {
   const key = `open${Date.now()}`;
   const btnClick = function (flag) {
     if (flag) {
-      dispatch(addApply(id, from._id)).then( res => {
-        if(res === true){
+      dispatch(addApply(id, from._id)).then(res => {
+        if (res === true) {
           message.success('添加好友成功', 1);
-        }else{
+        } else {
           message.error('添加好友失败', 1);
         }
       })
@@ -18,10 +18,10 @@ const openNotification = (id, from, dispatch) => {
   };
   const btn = (
     <div>
-      <Button type="primary" size="small" onClick={ () => btnClick(true) }>
+      <Button type="primary" size="small" onClick={() => btnClick(true)}>
         Confirm
       </Button>
-      <Button type="primary" size="small" onClick={ () => btnClick(false) }>
+      <Button type="primary" size="small" onClick={() => btnClick(false)}>
         Refuse
       </Button>
     </div>
@@ -60,9 +60,23 @@ export function connectInit(dispatch) {
     socket.on('notification', (result) => {
       const res = JSON.parse(result);
       if (res.type === 'apply') {
-        openNotification(res.token ,res.from, dispatch);
-      } else {
-        dispatch({ type: 'PRIVATEMSG', msg:{ user: res.from,token: res.token, msg: res.msg}});
+        openNotification(res.token, res.from, dispatch);
+      } else if (res.type === 'msg') {
+        dispatch({ type: 'PRIVATEMSG', msg: { user: res.from, token: res.token, msg: res.msg } });
+      } else if (res.type === 'accept') {
+        let option = {};
+        if (res.msg) {
+          option = {
+            message: '返回信息',
+            description: `${res.from.nickname}同意添加你为好友!`,
+          }
+        } else {
+          option = {
+            message: '返回信息',
+            description: `${res.from.nickname}拒绝添加你为好友!`,
+          }
+        }
+        notification.open(option);
       }
     })
   }
@@ -95,7 +109,7 @@ export function getRoom(id) {
   }
 }
 
-export function logout(){
+export function logout() {
   return async dispatch => {
     localStorage.removeItem('chat-token');
     dispatch({ type: 'UPDATELOGININFO', info: {} });
@@ -171,9 +185,7 @@ export function checkJwt() {
           .then(res => res.json()).then(result => {
             if (result.success === true) {
               localStorage.setItem('token', result.token);
-              console.log('开始分发info');
               dispatch({ type: 'UPDATELOGININFO', info: result.info })
-              console.log('分发info结束');
               resolve();
             } else {
               localStorage.removeItem('token');
@@ -224,5 +236,46 @@ export function register(data) {
         reject();
       })
     });
+  }
+}
+
+export function getMessages(id) {
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.getMessages}/${id}`, {
+        headers
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        return result;
+      } else {
+        return { success: false };
+      }
+    }
+  }
+}
+
+export function dealMessage(id) {
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.dealMessages}/${id}`, {
+        headers
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        dispatch({ type: 'UNREADREDUCE'});
+        return result;
+      } else {
+        return { success: false };
+      }
+    }
   }
 }

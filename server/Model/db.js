@@ -42,7 +42,7 @@ Room.plugin(createAt);
 
 Room.statics.getUserRoom = uid => {
     return this
-        .find({"$or":[{administrators:ObjectId(uid)},{owner:ObjectId(uid)},{members:ObjectId(uid)}]})
+        .find({"$or":[{administrators:uid},{owner:uid},{members:uid}]})
         .exec();
 }
 
@@ -59,19 +59,5 @@ const Message = mongoose.Schema({
 })
 
 Message.plugin(createAt);
-
-Message.statics.getMessagesByUserId = uid => {
-    return this
-        .find({toUser:ObjectId(uid)})
-        .select('-toUser')
-        .exec();
-};
-
-Message.statics.getMessagesByUserId = uid => {
-    return this
-          .where({toUser:ObjectId(uid),isDeal:false})
-          .count()
-          .exec()
-};
 
 exports.MessageModel = db.model('Message',Message);

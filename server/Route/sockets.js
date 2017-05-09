@@ -23,52 +23,52 @@ module.exports = function (server) {
         date: new Date(),
         type
       }))
-      const usersArr = [...users].map((v,i) => {
+      const usersArr = [...users].map((v, i) => {
         return v[1].user;
       })
-      io.sockets.emit('statistic',JSON.stringify({
+      io.sockets.emit('statistic', JSON.stringify({
         users: usersArr,
       }))
     });
     socket.on('disconnect', () => {
-      if(socket.user){
+      if (socket.user) {
         users.delete(socket.user._id);
         socket.broadcast.emit('broadcast', JSON.stringify({
           user: socket.user.nickname,
           type: 'logout'
         }));
       }
-      const usersArr = [...users].map((v,i) => {
+      const usersArr = [...users].map((v, i) => {
         return v[1].user;
       })
-      socket.broadcast.emit('statistic',JSON.stringify({
+      socket.broadcast.emit('statistic', JSON.stringify({
         users: usersArr,
       }))
     })
     socket.on('targetMsg', (obj) => {
-      try{
+      try {
         const param = JSON.parse(obj);
         console.log(param);
         let sendData = {};
-        switch(param.type){
+        switch (param.type) {
           case 'apply':
-            sendData = { type: param.type, from: param.user};
+            sendData = { type: param.type, from: param.user };
             break;
           case 'msg':
           default:
-            sendData = { type: param.type, from: param.user, msg: param.msg};
+            sendData = { type: param.type, from: param.user, msg: param.msg };
             break;
         }
-        if(users.has(param.id)){
+        if (users.has(param.id)) {
           //在线，则发送即时消息
           const t_socket = users.get(param.id);
-          if(param.type === 'msg'){
-            socket.emit('notification', JSON.stringify(Object.assign({}, sendData, { token:param.id })));
+          if (param.type === 'msg') {
+            socket.emit('notification', JSON.stringify(Object.assign({}, sendData, { token: param.id })));
           }
-          t_socket.emit('notification', JSON.stringify(Object.assign({}, sendData, { token:socket.user._id })));
-        }else{
+          t_socket.emit('notification', JSON.stringify(Object.assign({}, sendData, { token: socket.user._id })));
+        } else {
           //离线，保存一下message
-          if(param.type === 'apply'){
+          if (param.type === 'apply') {
             Message.create({
               title: '好友申请',
               content: `${param.user.nickname}想要添加你为好友`,
@@ -77,18 +77,18 @@ module.exports = function (server) {
               data: JSON.stringify(param.user),
               toUser: param.id,
             })
-          }else{
+          } else if(param.type === 'msg') {
             Message.create({
               title: '',
               content: param.msg,
               type: 'msg',
-              data: new Date().toString(),
+              data: JSON.stringify({ user: param.user, date: Date.now() }),
               toUser: param.id,
               isDeal: false,
             })
           }
         }
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     })

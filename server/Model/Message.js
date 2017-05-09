@@ -12,11 +12,15 @@ module.exports = {
   },
   getMessagesByUserId: uid => {
     return MessageModel
-          .getMessagesByUserId(uid);
+        .find({toUser:uid})
+        .select('-toUser')
+        .exec();
   },
   getUndealCount: uid => {
     return MessageModel
-          .getUndealCount(uid);
+          .where({toUser:uid,isDeal:false})
+          .count()
+          .exec();
   },
   setDeal: id => {
     return MessageModel

@@ -17,20 +17,26 @@ class App extends Component {
   }
   componentWillMount() {
     console.log('will');
-    if(!this.props.user){
+    if (!this.props.user) {
       this.props.checkJwt().then(() => {
-         this.props.socket || this.props.init();  
-      },() => {
+        this.props.socket || this.props.init();
+      }, () => {
         this.props.history.replace('/login')
       });
     }
   }
   componentDidMount() {
-    
   }
-  componentWillReceiveProps(next){
-    if(next.newMessage){
-      if(this.props.location.pathname.indexOf(`/${next.newMessage.type}/`) === -1){
+  componentWillReceiveProps(next) {
+    if(!this.props.user && next.user){
+      if(next.user.unread > 0){
+        Notification.requestPermission(function(status) {
+          var n = new Notification('未读消息', { body: `您有${next.user.unread}条消息未读!` }); 
+        });
+      }
+    }
+    if (next.newMessage) {
+      if (this.props.location.pathname.indexOf(`/${next.newMessage.type}/`) === -1) {
         Utils.openNotification(next.newMessage, this.props.history);
       }
     }
@@ -51,8 +57,8 @@ class App extends Component {
   render() {
     const { user } = this.props
     let friends = null;
-    if(user && user.friends){
-      friends = user.friends.map( v => <Menu.Item key={`menu_user_${v._id}`} ><Link to={`/user/${v._id}`}>{v.nickname}</Link></Menu.Item> );
+    if (user && user.friends) {
+      friends = user.friends.map(v => <Menu.Item key={`menu_user_${v._id}`} ><Link to={`/user/${v._id}`}>{v.nickname}</Link></Menu.Item>);
     }
     return (
       <Layout>
@@ -69,15 +75,16 @@ class App extends Component {
               onClick={this.menuClick}
             >
               <SubMenu key="sub1" title={<span><Icon type="user" />好友</span>}>
-              {
-                friends
-              }
+                {
+                  friends
+                }
               </SubMenu>
               <SubMenu key="sub2" title={<span><Icon type="laptop" />群组</span>}>
               </SubMenu>
               <SubMenu key="sub3" title={<span><Icon type="notification" />个人中心</span>}>
                 <Menu.Item key="9"><Link to="/search" >搜索好友</Link></Menu.Item>
                 <Menu.Item key="10">创建群组</Menu.Item>
+                <Menu.Item key="11"><Link to="/messages">消息中心({user ? user.unread : 0})</Link></Menu.Item>
                 <Menu.Item key="logout">退出</Menu.Item>
               </SubMenu>
               <Menu.Item key="8"><Link to="/" >公共聊天室</Link></Menu.Item>

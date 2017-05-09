@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import {Button, Spin, Alert} from 'antd'
+import { Button, Spin, Alert } from 'antd'
 import * as actions from '../actions/actions'
 import { withRouter } from 'react-router-dom'
 import * as Utils from '../utils/utils'
@@ -18,38 +18,73 @@ class Messages extends React.Component {
   componentWillMount() {
   }
   componentDidMount() {
-    this.props.getMessages(this.props.user._id).then((res) => {
-      if(res.success){
-        this.setState({
-          loading: false,
-          messages: res.messages,
-        })
-      }
-    })
+    if (this.props.user) {
+      this.props.getMessages(this.props.user._id).then((res) => {
+        if (res.success) {
+          this.setState({
+            loading: false,
+            messages: res.messages,
+          })
+        } else {
+          this.setState({
+            loading: false,
+            fail: true,
+          })
+        }
+      })
+    }
   }
-  deal(){
-
+  deal(v, flag) {
+    v.isDeal = true;
+    const messages = this.state.messages;
+    this.setState({
+      messages
+    });
+    const data = JSON.parse(v.data)
+    this.props.dealMessage(v._id);
+    if(v.type === 'msg'){
+      if(flag){
+        this.props.history.push(`/user/${data.user._id}`);
+      }
+    }else if(v.type === 'friendApply'){
+      if(flag){
+        this.props.applyFriend(data._id, this.props.user._id)
+        .then( resArr => {
+          if(resArr === true){
+            Utils.sendMessage('success','添加好友成功!',1);
+          }else{
+            Utils.sendMessage('error','添加好友失败!',1);
+          }
+        })
+        const user = this.props.user;
+        this.props.socket && this.props.socket.emit('targetMsg', JSON.stringify({ id:data._id, user, type:'accept',msg:true }));
+      }else{
+        this.props.socket && this.props.socket.emit('targetMsg', JSON.stringify({ id:data._id, user, type:'accept',msg:false }));
+      }
+    }
   }
   render() {
-    const { msgs, user, onlines, type, userMsgs } = this.props;
+    const { user } = this.props;
     return (
-      <div>
+      <div className="bg" style={{ minHeight: 'calc(100vh - 64px - 66px)' }}>
         {
-          (this.state.loading && user)?(
+          (this.state.loading && user) ? (
             <Spin tip="Loading...">
-              <Alert
-                message="正在加载"
-                description="正在加载消息中，请稍后。"
-                type="info"
-              />
+
             </Spin>
-          ):(
-            <div className="wrap" >
-              
-            </div>
-          )
+          ) : (
+              this.state.fail ? <div className="wrap">fail...</div> : (
+                <div className="wrap" style={{ overflow: 'hidden' }}>
+                  <div className="message-panel">
+                    {
+                      Utils.renderRecord(this.state.messages, this.deal)
+                    }
+                  </div>
+                </div>
+              )
+            )
         }
-        
+
       </div>
     )
   }
@@ -62,7 +97,9 @@ const mapStateToProp = (state) => {
 }
 const mapDispatchToProp = (dispatch) => {
   return {
-    getMessages: id => dispatch(actions.getMessages(id))
+    getMessages: id => dispatch(actions.getMessages(id)),
+    applyFriend: (id, fid) => dispatch(actions.addApply(id, fid)),
+    dealMessage: id => dispatch(actions.dealMessage(id)),    
   }
 }
 export default withRouter(connect(mapStateToProp, mapDispatchToProp)(Messages));

@@ -68,7 +68,7 @@ class ChatRoom extends React.Component {
       msgArr = msgs;
     }
     return (
-      <div>
+      <div className="wrap bg">
         {
           (this.state.loading && user)?(
             <Spin tip="Loading...">

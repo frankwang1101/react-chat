@@ -5,4 +5,6 @@ export default {
   jwt: 'checkjwt',
   search: 'search',
   addFriend: 'addfriend',
+  getMessages: 'messages',
+  dealMessages: 'dealmessages',
 }

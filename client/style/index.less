@@ -5,18 +5,18 @@
   justify-content: center;
   padding: 20px 0;
   font-size: 16px;
-  min-height: ~"calc(100vh - 64px - 66px)";
+  min-height: ~"calc(100vh - 64px - 66px - 40px)";
   z-index: 2;
   .main{
 
     width: 600px;
-    height: 800px;
+    height: 770px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: #999;  
+    background-color: hsla(0,0%,50%,.25);  
     padding-bottom: 10px;
-    
+    animation: leftRotate 0.2s ease-in;
     .title{
       height: 50px;
       line-height: 50px;
@@ -26,7 +26,8 @@
     .message-area{
       height: 75%;
       width: 90%;
-      background-color: #fff;
+      background-color: hsla(0,0%,70%,.25);
+      color: #fff;
       margin: 0 auto;
       .msg-row{
         .name{
@@ -49,6 +50,9 @@
       textarea{
         width: 80%;
         height: 100%;
+        background: hsla(0,0%,70%,.25);
+        color: #fff;
+        border: none;
       }
       button{
         margin-left: 10px;
@@ -59,13 +63,15 @@
   }
   .sider-bar{
     width: 200px;
-    height: 800px;
+    height: 770px;
     margin-left: 10px;
-    background-color: #fff;
+    background-color: hsla(0,0%,50%,.25);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 8px;
+    color: #fff;
+    animation:rightRotate .2s ease-in;
     .top-area{
       height: 30%;
       .top-area-column{
@@ -73,7 +79,7 @@
         line-height: 20px;
         font-size: 14px;
         text-align: center;
-        background-color: #eee;
+        background-color: hsla(0,0%,70%,.25);
       }
       .top-area-content{
         height: 15%;
@@ -88,7 +94,7 @@
         line-height: 20px;
         font-size: 14px;
         text-align: center;
-        background-color: #eee;
+        background-color: hsla(0,0%,70%,.25);
       }
       .bottom-area-content{ 
         height: 65%;
@@ -161,15 +167,73 @@
     }
   }
 }
-@keyframes flipLeft {
+@keyframes leftRotate {
   from {
-    right: -100%;
+    transform-origin: 0 150%;
+    transform: rotate(-90deg);
   }
-  to{
-    right: 0;
+  to {
+    transform-origin: 0 150%;
+    transform: rotate(0deg);
   }
 }
+@keyframes rightRotate {
+  from {
+    transform-origin: 0 150%;
+    transform: rotate(90deg);
+  }
+  to {
+    transform-origin: 0 150%;
+    transform: rotate(0deg);
+  }
+}
+@keyframes flipLeft {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes flipTop {
+  from {
+    transform: translate(0,-100%);
+  }
+  to {
+    transform: translate(0);
+  }
+}
+@keyframes flipBottom {
+  from {
+    transform: translate(0,100%);
+  }
+  to {
+    transform: translate(0);
+  }
+}
+@keyframes rightBottomScale {
+  from {
+    transform-origin: right bottom;
+    transform: scale(0);
+  }
+  to{
+    transform: scale(1);
+  }
+}
+.search-panel-top{
+  position: relative;
+  animation: 0.2s flipTop ease-in;
+}
+.search-panel-bottom{
+  position: relative;
+  min-height: ~"calc(100vh - 66px - 64px - 150px)";
+  animation: 0.2s flipBottom ease-in;
+}
 .search-wrap{
+  min-height: ~"calc(100vh - 280px)";
+  position: relative;
+  background-color: rgba(128, 128, 128, 0.25);
+  animation: rightBottomScale 0.2s ease-in;
   .user-panel{
     background-color: #fff;
     padding: 5px;
@@ -240,4 +304,50 @@
     background-size: cover;
     filter: blur(0.5);
   }
+}
+.login-panel(@bottom,@dy){
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+  position: relative;
+  &:before{
+    background: url('./bg.jpg') no-repeat; 
+    background-size: cover;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: block;
+    filter: blur(20px);
+  }
+  form{
+    width: 80%;
+    z-index: 2;
+    position: relative;
+    &:before{
+      content: '';
+      display: block;
+      background: hsla(0,0%,50%,0.25);
+      left: 50px;
+      right: 50px;
+      top: 0;
+      bottom: @bottom;
+      transform: translate(0,@dy);
+      position: absolute;
+    }
+    .ant-form-item-label label{
+      color: #fff;
+    }
+  }
+}
+.login-panel{
+  .login-panel(-100%,-25%);
+}
+.signup-panel{
+  .login-panel(-20%,-10%);
 }

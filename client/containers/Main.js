@@ -36,7 +36,11 @@ class App extends Component {
       }
     }
     if (next.newMessage) {
-      if (this.props.location.pathname.indexOf(`/${next.newMessage.type}/`) === -1) {
+      if(next.newMessage.user._id === this.props.user._id){
+        next.newMessage.show = true;
+      }
+      if (this.props.location.pathname.indexOf(`/${next.newMessage.type}/`) === -1 && !next.newMessage.show) {
+        next.newMessage.show = true;
         Utils.openNotification(next.newMessage, this.props.history);
       }
     }

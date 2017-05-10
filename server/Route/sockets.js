@@ -19,7 +19,7 @@ module.exports = function (server) {
       socket.user = user;
       users.set(user._id, socket);
       io.sockets.emit('broadcast', JSON.stringify({
-        user: user.nickname,
+        user: user,
         date: new Date(),
         type
       }))
@@ -34,7 +34,7 @@ module.exports = function (server) {
       if (socket.user) {
         users.delete(socket.user._id);
         socket.broadcast.emit('broadcast', JSON.stringify({
-          user: socket.user.nickname,
+          user: socket.user,
           type: 'logout'
         }));
       }

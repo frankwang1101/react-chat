@@ -1,38 +1,8 @@
 import io from 'socket.io-client'
 import { notification, Button, message } from 'antd'
 import config from '../config/config'
+import * as utils from '../utils/utils'
 
-const openNotification = (id, from, dispatch) => {
-  const key = `open${Date.now()}`;
-  const btnClick = function (flag) {
-    if (flag) {
-      dispatch(addApply(id, from._id)).then(res => {
-        if (res === true) {
-          message.success('添加好友成功', 1);
-        } else {
-          message.error('添加好友失败', 1);
-        }
-      })
-    }
-    notification.close(key);
-  };
-  const btn = (
-    <div>
-      <Button type="primary" size="small" onClick={() => btnClick(true)}>
-        Confirm
-      </Button>
-      <Button type="primary" size="small" onClick={() => btnClick(false)}>
-        Refuse
-      </Button>
-    </div>
-  );
-  notification.open({
-    message: 'Friend Apply',
-    description: `${from.nickname} want to become ur friend`,
-    btn,
-    key,
-  });
-};
 
 export function connectInit(dispatch) {
   return (dispatch) => {
@@ -60,7 +30,7 @@ export function connectInit(dispatch) {
     socket.on('notification', (result) => {
       const res = JSON.parse(result);
       if (res.type === 'apply') {
-        openNotification(res.token, res.from, dispatch);
+        utils.openAddNotification(res.token, res.from, dispatch);
       } else if (res.type === 'msg') {
         dispatch({ type: 'PRIVATEMSG', msg: { user: res.from, token: res.token, msg: res.msg } });
       } else if (res.type === 'accept') {

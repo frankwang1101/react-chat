@@ -20,8 +20,8 @@ export function chatReducer(state = initState, action) {
       return Object.assign({}, state, { socket: action.socket });
     }
     case 'UPDATELOGININFO': {
-      if(state.user && state.user.unread){
-        action.info.unread = state.user.unread - 1;
+      if(state.user && state.user.unread !== undefined){
+        action.info.unread = state.user.unread;
       }
       return Object.assign({}, state, { user: action.info });
     }
@@ -37,7 +37,7 @@ export function chatReducer(state = initState, action) {
         state.userMsgs[action.msg.token].push({msg: action.msg.msg, type:'msg' ,user ,date:new Date()});
         obj[action.msg.token] = state.userMsgs[action.msg.token]
       } 
-      return Object.assign({}, state, {userMsgs: obj, newMessage:{type:'user', ...action.msg}});
+      return Object.assign({}, state, {userMsgs: obj, newMessage:{type:'user', ...action.msg, show:false}});
     }
     case 'UNREADREDUCE':{
       const unread = state.user.unread - 1;

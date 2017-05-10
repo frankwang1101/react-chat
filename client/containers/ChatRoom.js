@@ -52,7 +52,7 @@ class ChatRoom extends React.Component {
     if(this.props.type !== 'public'){
       target = this.state.target;
     }
-    actions.emitMsg(this.props.socket, msg, this.props.user.nickname, target);
+    actions.emitMsg(this.props.socket, msg, this.props.user, target);
     this.target.value = '';
   }
   render() {
@@ -68,7 +68,7 @@ class ChatRoom extends React.Component {
       msgArr = msgs;
     }
     return (
-      <div className="wrap bg">
+      <div className="wrap bg" style={{ overflow:'hidden'}}>
         {
           (this.state.loading && user)?(
             <Spin tip="Loading...">

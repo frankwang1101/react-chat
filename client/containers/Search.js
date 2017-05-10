@@ -69,34 +69,35 @@ class SearchComponent extends React.Component {
     const sarr = Utils.renderSearchRes(this.state.searchArr, this.add, user);
     return (
       <div className="bg" style={{ minHeight:'calc(100vh - 66px - 64px )', overflow: 'hidden', padding: '0 20px' }} >
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150 }} >
+        <div className="search-panel-top" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150 }} >
           <Search
             placeholder="input search text"
             style={{ width: '60%' }}
             onSearch={value => this.search(value)}
           />
         </div>
-        {
-          (this.state.searching) ? (
-            <Spin tip="Loading...">
-              <Alert
-                message="Alert message title"
-                description="Further details about the context of this alert."
-                type="info"
-              />
-            </Spin>
-          ) : (
-              (this.state.searched) ?
-                (<div className="search-wrap" >
-                  {sarr}
-                </div>) : (
-                  <div className="wrap" style={{background:'hsla(0,0%,100%,.25) border-box',minHeight:'calc(100vh - 64px - 66px - 150px)',fontSize:'26px',color:'#fff'}}>
-                    请输入搜索内容
-                  </div>
-                )
-            )
-        }
-
+        <div className="search-panel-bottom">
+          {
+            (this.state.searching) ? (
+              <Spin tip="Loading...">
+                <Alert
+                  message="Alert message title"
+                  description="Further details about the context of this alert."
+                  type="info"
+                />
+              </Spin>
+            ) : (
+                (this.state.searched) ?
+                  (<div className="search-wrap" >
+                    {sarr}
+                  </div>) : (
+                    <div className="wrap" style={{background:'hsla(0,0%,100%,.25) border-box',minHeight:'calc(100vh - 64px - 66px - 150px)',fontSize:'26px',color:'#fff'}}>
+                      请输入搜索内容
+                    </div>
+                  )
+              )
+          }
+        </div>
       </div>
     )
   }

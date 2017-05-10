@@ -18,19 +18,19 @@ export function renderOnlines(array) {
 export function renderMsgs(array) {
   return array.map((v, i) => {
     let res = '';
-    const key = `${v.user}${v.date}${i}`;
+    const key = `${v.user._id}${v.date}`;
     switch (v.type) {
       case 'login': {
-        res = <div className="msg-row" key={key}><span className="sys-msg"><span className="name">{v.user}</span>{`进入了聊天室...`}</span></div>
+        res = <div className="msg-row" key={key}><span className="sys-msg"><span className="name">{v.user.nickname}</span>{`进入了聊天室...`}</span></div>
         break;
       }
       case 'logout': {
-        res = <div className="msg-row" key={key}><span className="sys-msg"><span className="name">{v.user}</span>{`退出了聊天室...`}</span></div>
+        res = <div className="msg-row" key={key}><span className="sys-msg"><span className="name">{v.user.nickname}</span>{`退出了聊天室...`}</span></div>
         break;
       }
       case 'msg': {
         res = <div className="msg-row" key={key}>
-          <div><span className="name">{`${v.user}`}</span><span className="time">{`  ${moment(v.date).format('YYYY-MM-DD HH:mm:ss')}`}</span></div>
+          <div><span className="name">{`${v.user.nickname}`}</span><span className="time">{`  ${moment(v.date).format('YYYY-MM-DD HH:mm:ss')}`}</span></div>
           <pre>{v.msg}</pre>
         </div>
         break;
@@ -85,8 +85,40 @@ export function openNotification(newMessage, history) {
     </Button>
   );
   notification.open({
-    message: `${newMessage.user}`,
+    message: `${newMessage.user.nickname}`,
     description: newMessage.msg,
+    btn,
+    key,
+  });
+};
+
+export function openAddNotification(id, from, dispatch){
+  const key = `open${Date.now()}`;
+  const btnClick = function (flag) {
+    if (flag) {
+      dispatch(addApply(id, from._id)).then(res => {
+        if (res === true) {
+          message.success('添加好友成功', 1);
+        } else {
+          message.error('添加好友失败', 1);
+        }
+      })
+    }
+    notification.close(key);
+  };
+  const btn = (
+    <div>
+      <Button type="primary" size="small" onClick={() => btnClick(true)}>
+        Confirm
+      </Button>
+      <Button type="primary" size="small" onClick={() => btnClick(false)}>
+        Refuse
+      </Button>
+    </div>
+  );
+  notification.open({
+    message: 'Friend Apply',
+    description: `${from.nickname} want to become ur friend`,
     btn,
     key,
   });

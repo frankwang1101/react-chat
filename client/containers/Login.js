@@ -86,7 +86,7 @@ class RegistrationForm extends React.Component {
       },
     };
     return (
-      <div style={{ "marginTop": "20px" }}>
+      <div className="login-panel">
         {hasResult ?
           <Alert
             message={resultMsg}

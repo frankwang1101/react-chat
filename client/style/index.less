@@ -351,3 +351,38 @@
 .signup-panel{
   .login-panel(-20%,-10%);
 }
+.room-create-panel{
+  min-height: ~"calc(100vh - 130px)";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  form{
+    width: 80%;
+    z-index: 2;
+    position: relative;
+    label{
+      color: #fff;
+    }
+    &:before{
+      position: absolute;
+      content: '';
+      display: block;
+      background: hsla(0,0%,50%,.25);
+      bottom: -10px;
+      top: -20px;
+      left: 50px;
+      right: 50px;
+    }
+    .room-member-transfer {
+      .ant-transfer-list-content-item{
+        color: #fff;
+        &:hover{
+          color: #444;
+        }
+      }
+      .ant-transfer-list-body-not-found{
+        color: #fff;
+      }
+    }
+  }
+}

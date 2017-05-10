@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { Dropdown, Menu, Icon, Layout } from 'antd'
+import { Dropdown, Menu, Icon, Layout, Spin } from 'antd'
 import { withRouter, Link } from 'react-router-dom'
 import * as Actions from '../actions/actions'
 import * as Utils from '../utils/utils'
@@ -87,7 +87,7 @@ class App extends Component {
               </SubMenu>
               <SubMenu key="sub3" title={<span><Icon type="notification" />个人中心</span>}>
                 <Menu.Item key="9"><Link to="/search" >搜索好友</Link></Menu.Item>
-                <Menu.Item key="10">创建群组</Menu.Item>
+                <Menu.Item key="10"><Link to="/create_room" >创建群组</Link></Menu.Item>
                 <Menu.Item key="11"><Link to="/messages">消息中心({user ? user.unread : 0})</Link></Menu.Item>
                 <Menu.Item key="logout">退出</Menu.Item>
               </SubMenu>
@@ -96,7 +96,7 @@ class App extends Component {
           </Sider>
           <Layout>
             <Content className="content">
-              {this.props.children}
+              {<Spin spinning={this.props.user?false:true}>{this.props.children}</Spin>}
             </Content>
           </Layout>
         </Layout>

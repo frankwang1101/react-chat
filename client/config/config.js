@@ -7,4 +7,6 @@ export default {
   addFriend: 'addfriend',
   getMessages: 'messages',
   dealMessages: 'dealmessages',
+  create_room: 'create_room',
+  change_member: 'change_member',
 }

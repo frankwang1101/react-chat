@@ -249,3 +249,53 @@ export function dealMessage(id) {
     }
   }
 }
+
+export function addRoom(data){
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.create_room}`, {
+        headers,
+        body: JSON.stringify(data),
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        const user = await getUser(fid)(dispatch);
+        if (user !== false) {
+          dispatch({ type: 'UPDATELOGININFO', info: user })
+        }
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+export function changeRoomMember(data){
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.change_member}`, {
+        headers,
+        body: JSON.stringify(data),
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        const user = await getUser(fid)(dispatch);
+        if (user !== false) {
+          dispatch({ type: 'UPDATELOGININFO', info: user })
+        }
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}

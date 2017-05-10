@@ -8,6 +8,7 @@ import Signup from '../containers/Signup'
 import Search from '../containers/Search'
 import Create from '../containers/Create'
 import Messages from '../containers/Messages'
+import Room from '../containers/Room'
 
 const match = ({ match }) => {
   let type = "public";
@@ -26,6 +27,8 @@ const find = ({ match }) => {
     return <Main><Create /></Main>
   } else if (match.path === '/messages') {
     return <Main><Messages /></Main>
+  } else if (match.path === '/create_room') {
+    return <Main><Room /></Main>
   }
 }
 
@@ -40,6 +43,7 @@ export default function () {
           <Route path="/search" component={find} />
           <Route path="/create" component={find} />
           <Route path="/messages" component={find} />
+          <Route path="/create_room" component={find} />
           <Route exact path="/login" component={Login} />
           <Route path="/signup" component={Signup} />
         </div>

@@ -47,15 +47,18 @@ class Messages extends React.Component {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        console.log(values);
-        // const history = this.props.history;
-        // this.props.register(values).then(() => {
-        //   utils.sendMessage('success','注册成功!', 1.5, () => {
-        //     history.push('/login');
-        //   });
-        // }, () => {
-        //   utils.sendMessage('error','注册失败!',1.5);
-        // })
+        const roomInfo = values;
+        const userInfo = this.props.user;
+        this.props.addRoom({ roomInfo, userInfo})
+          .then((res) => {
+            if(res){
+              actions.notificateMember(this.props.socket, res, res.ids);
+              Utils.sendMessage('success','创建成功!',1);
+            }else{
+              Utils.sendMessage('success','创建失败!',1);
+            }
+          })
+        
       }
     });
   }
@@ -84,16 +87,16 @@ class Messages extends React.Component {
         },
       },
     };
-    const mockData = [];
-    for (let i = 0; i < 20; i++) {
-      const data = {
-        key: i.toString(),
-        title: `content${i + 1}`,
-        description: `description of content${i + 1}`,
-        chosen: false,
-      };
-      
-      mockData.push(data);
+    let userData = [];
+    if(user && user.friends.length){    
+      userData = user.friends.map((v) => (
+        {
+          key: v._id,
+          title: `${v.nickname}(${v.username})`,
+          description: `${v.nickname}`,
+          chosen: false,
+        }
+      ))
     }
     return (
       <div className="bg" style={{ minHeight: 'calc(100vh - 64px - 66px)' }}>
@@ -120,7 +123,7 @@ class Messages extends React.Component {
               label="群组描述"
               hasFeedback
             >
-              {getFieldDecorator('description', {
+              {getFieldDecorator('roomdesc', {
                 rules: [{
                   max: 200, message: '请限制在200个字以内',
                 }],
@@ -139,7 +142,7 @@ class Messages extends React.Component {
               })(
                 <Transfer
                   className="room-member-transfer"
-                  dataSource={mockData}
+                  dataSource={userData}
                   showSearch
                   render={item => item.title}
                   targetKeys={this.state.targetKeys}
@@ -165,6 +168,7 @@ const mapStateToProp = (state) => {
 const mapDispatchToProp = (dispatch) => {
   return {
     addRoom: data => dispatch(actions.addRoom(data)),
+    notificateMember: (...args) => actions.notificateMember(args),
   }
 }
 

@@ -64,6 +64,10 @@ class App extends Component {
     if (user && user.friends) {
       friends = user.friends.map(v => <Menu.Item key={`menu_user_${v._id}`} ><Link to={`/user/${v._id}`}>{v.nickname}</Link></Menu.Item>);
     }
+    let rooms = null;
+    if(user && user.rooms){
+      rooms = user.rooms.map( v => <Menu.Item key={`menu_room_${v._id}`} ><Link to={`/room/${v._id}`}>{v.roomname}</Link></Menu.Item>);
+    }
     return (
       <Layout>
         <Header className="header">
@@ -84,6 +88,9 @@ class App extends Component {
                 }
               </SubMenu>
               <SubMenu key="sub2" title={<span><Icon type="laptop" />群组</span>}>
+              {
+                rooms
+              }
               </SubMenu>
               <SubMenu key="sub3" title={<span><Icon type="notification" />个人中心</span>}>
                 <Menu.Item key="9"><Link to="/search" >搜索好友</Link></Menu.Item>

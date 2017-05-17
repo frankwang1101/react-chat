@@ -40,12 +40,6 @@ const Room = mongoose.Schema({
 
 Room.plugin(createAt);
 
-Room.statics.getUserRoom = uid => {
-    return this
-        .find({"$or":[{administrators:uid},{owner:uid},{members:uid}]})
-        .exec();
-}
-
 exports.RoomModel = db.model('Room',Room);
 
 const Message = mongoose.Schema({

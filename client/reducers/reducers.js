@@ -44,6 +44,12 @@ export function chatReducer(state = initState, action) {
       const user = Object.assign({},state.user,{unread});
       return Object.assign({},state,{user});
     }
+    case 'UPDATEROOMLIST':{
+      const rooms = state.user.rooms || [];
+      rooms.push(action.room);
+      const user = Object.assign({}, state.user, {rooms});
+      return Object.assign({}, state, {user});
+    }
     default:
       return state;
   }

@@ -45,6 +45,57 @@ module.exports = function (server) {
         users: usersArr,
       }))
     })
+    socket.on('groupMsg', (obj) => {
+      try{
+        const params = JSON.parse(obj);
+        let msOption = {};
+        let emitData = {};
+        switch(params.type){
+          case 'becomeMember':{
+            emitData = {
+              type: 'becomeMember',
+              _id: params._id,
+              roomname: params.roomname,
+            };
+            msOption = {
+              title: '加入群组',
+              content: `您已经成为群组 ${params.roomname} 的成员`,
+              type: 'becomeMember',
+            };
+            break;
+          }
+          case 'msg':
+          default:{
+            emitData = {
+              type: 'msg',
+              msg: params.msg,
+              from: params.from,
+            };
+            msOption = {
+              title: '',
+              content: params.msg,
+              type: 'msg',
+              data: JSON.stringify(params.from),
+            };
+            break;
+          }
+        }
+        params.ids.forEach((v) => {
+          let isDeal = false;
+          if(users.has(v)){
+            isDeal = true;
+            console.log('notiffffffffffff');
+            users.get(v).emit('notification', JSON.stringify(emitData));
+          }
+          Object.assign(msOption,{isDeal, toUser:v});
+          if(isDeal || params.type === 'becomeMember'){
+            Message.create(msOption);
+          }
+        })
+      }catch(e){
+        console.log(e);
+      }
+    })
     socket.on('targetMsg', (obj) => {
       try {
         const param = JSON.parse(obj);
@@ -59,6 +110,7 @@ module.exports = function (server) {
             sendData = { type: param.type, from: param.user, msg: param.msg };
             break;
         }
+        let isDeal = false;
         if (users.has(param.id)) {
           //在线，则发送即时消息
           const t_socket = users.get(param.id);
@@ -66,27 +118,27 @@ module.exports = function (server) {
             socket.emit('notification', JSON.stringify(Object.assign({}, sendData, { token: param.id })));
           }
           t_socket.emit('notification', JSON.stringify(Object.assign({}, sendData, { token: socket.user._id })));
-        } else {
-          //离线，保存一下message
-          if (param.type === 'apply') {
-            Message.create({
-              title: '好友申请',
-              content: `${param.user.nickname}想要添加你为好友`,
-              type: 'friendApply',
-              isDeal: false,
-              data: JSON.stringify(param.user),
-              toUser: param.id,
-            })
-          } else if(param.type === 'msg') {
-            Message.create({
-              title: '',
-              content: param.msg,
-              type: 'msg',
-              data: JSON.stringify({ user: param.user, date: Date.now() }),
-              toUser: param.id,
-              isDeal: false,
-            })
-          }
+          isDeal = true;
+        }
+        //保存message
+        if (param.type === 'apply') {
+          Message.create({
+            title: '好友申请',
+            content: `${param.user.nickname}想要添加你为好友`,
+            type: 'friendApply',
+            isDeal,
+            data: JSON.stringify(param.user),
+            toUser: param.id,
+          })
+        } else if(param.type === 'msg') {
+          Message.create({
+            title: '',
+            content: param.msg,
+            type: 'msg',
+            data: JSON.stringify({ user: param.user, date: Date.now() }),
+            toUser: param.id,
+            isDeal,
+          })
         }
       } catch (e) {
         console.log(e);

@@ -47,6 +47,13 @@ export function connectInit(dispatch) {
           }
         }
         notification.open(option);
+      } else if (res.type === 'becomeMember') {
+        const option = {
+          message: '群组信息',
+          description: `您已成为群组${res.roomname}的一员`,
+        }
+        notification.open(option);
+        dispatch({ type: 'UPDATEROOMLIST', room: { _id: res._id, roomname: res.roomname } });
       }
     })
   }
@@ -70,12 +77,18 @@ export function emitMsg(socket, msg, user, target) {
 
 export function getRoom(id) {
   return async dispatch => {
-    const k = await new Promise((r) => {
-      console.log('lg4j');
-      r('asslk');
-    }, 3000)
-    console.log(k);
-    return 'false';
+    try{
+      const json = await fetch(`${config.url}${config.getRoom}/${id}`);
+      const result = await json.json();
+      if (result.success === true) {
+        return result.room;
+      } else {
+        return false;
+      }
+    }catch(e){
+      console.log(e);
+      return false;
+    }
   }
 }
 
@@ -241,7 +254,7 @@ export function dealMessage(id) {
       });
       const result = await json.json();
       if (result.success === true) {
-        dispatch({ type: 'UNREADREDUCE'});
+        dispatch({ type: 'UNREADREDUCE' });
         return result;
       } else {
         return { success: false };
@@ -250,7 +263,7 @@ export function dealMessage(id) {
   }
 }
 
-export function addRoom(data){
+export function addRoom(data) {
   return async dispatch => {
     const token = localStorage.getItem('chat-token');
     if (!token) {
@@ -258,24 +271,33 @@ export function addRoom(data){
     } else {
       const headers = new Headers({ Authrorization: token });
       const json = await fetch(`${config.url}${config.create_room}`, {
+        method: 'post',
         headers,
         body: JSON.stringify(data),
       });
       const result = await json.json();
       if (result.success === true) {
-        const user = await getUser(fid)(dispatch);
-        if (user !== false) {
-          dispatch({ type: 'UPDATELOGININFO', info: user })
-        }
-        return true;
+        const room = result.room;
+        dispatch({ type: 'UPDATEROOMLIST', room });
+        room.ids = data.roomInfo.members;
+        return room;
       } else {
         return false;
       }
     }
   }
 }
-
-export function changeRoomMember(data){
+export function notificateMember(socket, room, ids) {
+  socket.emit('groupMsg', JSON.stringify(
+    {
+      ids,
+      _id: room._id,
+      roomname: room.roomname,
+      type: 'becomeMember',
+    }
+  ))
+}
+export function changeRoomMember(data) {
   return async dispatch => {
     const token = localStorage.getItem('chat-token');
     if (!token) {

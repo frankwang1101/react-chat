@@ -9,4 +9,5 @@ export default {
   dealMessages: 'dealmessages',
   create_room: 'create_room',
   change_member: 'change_member',
+  getRoom: 'get_room',
 }

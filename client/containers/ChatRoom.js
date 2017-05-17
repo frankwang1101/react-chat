@@ -24,10 +24,12 @@ class ChatRoom extends React.Component {
     const type = this.props.type;
     const self = this;
     if(type === 'room'){
-      this.props.getRoom(this.props.params.id).then((target) => {
+      this.props.getRoom(this.props.params.id).then((room) => {
+        const target = [room.owner._id].concat(room.members.map( v => v._id)).concat(room.administrators.map( v => v._id));
         self.setState({
           loading : false,
-          target
+          target,
+          room
         })
       });
     }else if(type === 'user'){
@@ -57,6 +59,8 @@ class ChatRoom extends React.Component {
   }
   render() {
     const { msgs, user, onlines, type, userMsgs } = this.props;
+    const room = this.state.room;
+    
     let msgArr = [];
     let title = '欢迎来到公告聊天室~~';
     if(type === 'user' && this.state.target){
@@ -99,10 +103,19 @@ class ChatRoom extends React.Component {
                       <div className="top-area-column">聊天室公告</div>
                       <div className="top-area-content"></div>
                     </div>
-                    <div className="bottom-area">
-                      <div className="bottom-area-column">在线人数({onlines.length})</div>
-                      <div className="bottom-area-content">{Utils.renderOnlines(onlines)}</div>
-                    </div>
+                    {
+                      type === 'room' ? (
+                        <div className="bottom-area">
+                          <div className="bottom-area-column">群组成员</div>
+                          <div className="bottom-area-content">{Utils.renderOnlines(onlines)}</div>
+                        </div>
+                      ) : (
+                        <div className="bottom-area">
+                          <div className="bottom-area-column">在线人数({onlines.length})</div>
+                          <div className="bottom-area-content">{Utils.renderOnlines(onlines)}</div>
+                        </div>
+                      )
+                    }
                   </div>
                 ) : ''
               }

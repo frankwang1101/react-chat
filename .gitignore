@@ -2,7 +2,7 @@
 /node_modules
 
 # testing
-/test
+/client/test
 
 # production
 /dist

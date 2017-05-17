@@ -92,7 +92,7 @@ export function openNotification(newMessage, history) {
   });
 };
 
-export function openAddNotification(id, from, dispatch){
+export function openAddNotification(id, from, dispatch) {
   const key = `open${Date.now()}`;
   const btnClick = function (flag) {
     if (flag) {
@@ -124,9 +124,9 @@ export function openAddNotification(id, from, dispatch){
   });
 };
 
-export function renderRecord(records,  deal) {
+export function renderRecord(records, deal) {
   return records.map(v => {
-    const data = JSON.parse(v.data);
+    const data = v.data ? JSON.parse(v.data) : null;
     if (v.type === 'msg') {
       const user = data.user;
       return (
@@ -138,7 +138,7 @@ export function renderRecord(records,  deal) {
           <div className="content">
             {`${v.content}  ${moment(data.date).format('YYYY-MM-DD HH:mm:ss')}`}
           </div>
-          <div className={`operate ${v.isDeal?'disabled':''}`}>
+          <div className={`operate ${v.isDeal ? 'disabled' : ''}`}>
             <Button>回复</Button>
             <Button>已读</Button>
           </div>
@@ -154,9 +154,23 @@ export function renderRecord(records,  deal) {
             <div className="user-name">{data.nickname}</div>
             <div className="user-msg">{v.content}</div>
           </div>
-          <div className={`operate ${v.isDeal?'disabled':''}`}>
-            <Button onClick={() => deal(v,true)}>同意</Button>
-            <Button onClick={() => deal(v,false)}>拒绝</Button>
+          <div className={`operate ${v.isDeal ? 'disabled' : ''}`}>
+            <Button onClick={() => deal(v, true)}>同意</Button>
+            <Button onClick={() => deal(v, false)}>拒绝</Button>
+          </div>
+        </div>
+      )
+    } else if (v.type === 'becomeMember') {
+      return (
+        <div className="rec rec-apply">
+          <div className="user-head">
+            
+          </div>
+          <div className="user-content">
+            <div className="user-msg">{v.content}</div>
+          </div>
+          <div className={`operate ${v.isDeal ? 'disabled' : ''}`}>
+            <Button onClick={() => deal(v, true)}>已读</Button>
           </div>
         </div>
       )

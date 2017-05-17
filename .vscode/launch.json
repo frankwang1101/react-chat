@@ -7,6 +7,12 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceRoot}/client/test/test1.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "启动程序",
       "program": "${workspaceRoot}\\server\\app.babel.js"
     },

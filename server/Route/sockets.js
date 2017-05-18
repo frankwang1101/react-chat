@@ -1,5 +1,6 @@
 const socketIo = require('socket.io');
 const Message = require('../Model/Message')
+const User = require('../Model/User')
 
 module.exports = function (server) {
   const io = socketIo.listen(server);
@@ -18,6 +19,7 @@ module.exports = function (server) {
       const type = 'login';
       socket.user = user;
       users.set(user._id, socket);
+      User.setOnline(user._id,true);
       io.sockets.emit('broadcast', JSON.stringify({
         user: user,
         date: new Date(),
@@ -28,10 +30,12 @@ module.exports = function (server) {
       })
       io.sockets.emit('statistic', JSON.stringify({
         users: usersArr,
+        keys: users.keys(),
       }))
     });
     socket.on('disconnect', () => {
       if (socket.user) {
+        User.setOnline(socket.user._id,false);
         users.delete(socket.user._id);
         socket.broadcast.emit('broadcast', JSON.stringify({
           user: socket.user,
@@ -67,15 +71,25 @@ module.exports = function (server) {
           case 'msg':
           default:{
             emitData = {
-              type: 'msg',
+              type: 'roomMsg',
               msg: params.msg,
               from: params.from,
+              room: params.room,
             };
             msOption = {
               title: '',
               content: params.msg,
-              type: 'msg',
-              data: JSON.stringify(params.from),
+              type: 'roomMsg',
+              data: JSON.stringify({user:{
+                _id:params.from._id, 
+                username:params.from.username,
+                nickname:params.from.nickname,
+                avatar:params.from.avatar,
+              },
+              room:{
+                _id:params.room._id,
+                roomname:params.room.roomname,
+              }, date: Date.now()}),
             };
             break;
           }
@@ -84,11 +98,10 @@ module.exports = function (server) {
           let isDeal = false;
           if(users.has(v)){
             isDeal = true;
-            console.log('notiffffffffffff');
             users.get(v).emit('notification', JSON.stringify(emitData));
           }
           Object.assign(msOption,{isDeal, toUser:v});
-          if(isDeal || params.type === 'becomeMember'){
+          if(!isDeal || params.type === 'becomeMember'){
             Message.create(msOption);
           }
         })

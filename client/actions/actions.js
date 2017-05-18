@@ -5,7 +5,7 @@ import * as utils from '../utils/utils'
 
 
 export function connectInit(dispatch) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     const socket = io.connect();
     console.log('开始设置socket');
     dispatch({ type: 'SETSOCKET', socket: socket });
@@ -25,7 +25,7 @@ export function connectInit(dispatch) {
     });
     socket.on('statistic', (users) => {
       const res = JSON.parse(users);
-      dispatch({ type: 'UPDATEONLINES', onlines: res.users });
+      dispatch({ type: 'UPDATEONLINES', onlines: res.users, keys: res.keys });
     });
     socket.on('notification', (result) => {
       const res = JSON.parse(result);
@@ -54,30 +54,40 @@ export function connectInit(dispatch) {
         }
         notification.open(option);
         dispatch({ type: 'UPDATEROOMLIST', room: { _id: res._id, roomname: res.roomname } });
+      } else if(res.type === 'roomMsg'){
+        dispatch({ type:'ROOMMSG', msg:{msg: res.msg, room: res.room, from: res.from}});
       }
     })
   }
 }
 
-export function emitMsg(socket, msg, user, target) {
-  if (!target) {
+export function emitMsg(socket, msg, user, target, type, room) {
+  if (type === 'public') {
     socket.emit('msg', JSON.stringify({
       user,
       msg,
     }));
-  } else {
+  } else if (type === 'user') {
     socket.emit('targetMsg', JSON.stringify({
       user,
       msg,
       id: target._id,
       type: 'msg',
     }));
+  } else if (type === 'room') {
+    socket.emit('groupMsg', JSON.stringify({
+      ids: target,
+      msg,
+      type: 'msg',
+      from: user,
+      room,
+    }));
   }
 }
 
 export function getRoom(id) {
   return async dispatch => {
-    try{
+    try {
       const json = await fetch(`${config.url}${config.getRoom}/${id}`);
       const result = await json.json();
       if (result.success === true) {
@@ -85,7 +95,7 @@ export function getRoom(id) {
       } else {
         return false;
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
       return false;
     }
@@ -190,7 +200,7 @@ export function login(data) {
         if (result.success === true) {
           const token = result.info.token;
           localStorage.setItem('chat-token', token);
-          dispatch({ type: 'USERLOGIN', data: result.info });
+          dispatch({ type: 'UPDATELOGININFO', data: result.info });
           connectInit(dispatch);
           resolve();
         } else {

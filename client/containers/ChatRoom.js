@@ -21,16 +21,23 @@ class ChatRoom extends React.Component {
     }
   }
   componentWillMount() {
+    console.log('will mount');
     const type = this.props.type;
     const self = this;
     if(type === 'room'){
       this.props.getRoom(this.props.params.id).then((room) => {
-        const target = [room.owner._id].concat(room.members.map( v => v._id)).concat(room.administrators.map( v => v._id));
-        self.setState({
-          loading : false,
-          target,
-          room
-        })
+        if(room){
+          const target = [room.owner._id].concat(room.members.map( v => v._id)).concat(room.administrators.map( v => v._id));
+          self.setState({
+            loading : false,
+            target,
+            room
+          })
+        }else{
+          Utils.sendMessage('error','获取群组信息出错!',1,() =>{
+            this.props.history.push('/');
+          })
+        }
       });
     }else if(type === 'user'){
       this.props.getUser(this.props.params.id).then((target) => {
@@ -40,6 +47,32 @@ class ChatRoom extends React.Component {
         })
       });
     }
+  }
+  componentWillReceiveProps(nextProps){
+    if(this.props.type === 'room'){
+      if(this.state.room._id !== nextProps.params.id){
+        this.setState({
+          loading: true
+        })
+        this.props.getRoom(nextProps.params.id).then((room) => {
+          if(room){
+            const target = [room.owner._id].concat(room.members.map( v => v._id)).concat(room.administrators.map( v => v._id));
+            this.setState({
+              loading : false,
+              target,
+              room
+            })
+          }else{
+            Utils.sendMessage('error','获取群组信息出错!',1,() =>{
+              this.props.history.push('/');
+            })
+          }
+        });
+      }
+    }
+  }
+  shouldComponentUpdate(nextProps,nextState){
+    return true;
   }
   componentDidMount() {
     console.log('mount..');
@@ -54,23 +87,30 @@ class ChatRoom extends React.Component {
     if(this.props.type !== 'public'){
       target = this.state.target;
     }
-    actions.emitMsg(this.props.socket, msg, this.props.user, target);
+    actions.emitMsg(this.props.socket, msg, this.props.user, target, this.props.type, this.state.room);
     this.target.value = '';
   }
   render() {
-    const { msgs, user, onlines, type, userMsgs } = this.props;
+    console.log('re-render..');
+    const { msgs, user, onlines, type, userMsgs, roomMsgs } = this.props;
     const room = this.state.room;
-    
     let msgArr = [];
     let title = '欢迎来到公告聊天室~~';
+    let memberRender = {
+      arr:[],
+      count: '',
+    };
     if(type === 'user' && this.state.target){
       title = this.state.target.nickname;
       msgArr = userMsgs[this.props.params.id] || [];
-    }else if(type === 'room'){
-      
+    }else if(type === 'room' && this.state.room){
+      title = this.state.room.roomname;
+      msgArr = roomMsgs[this.props.params.id] || [];
+      memberRender = Utils.renderRoomMembers(room);
     }else{
       msgArr = msgs;
     }
+    
     return (
       <div className="wrap bg" style={{ overflow:'hidden'}}>
         {
@@ -106,8 +146,8 @@ class ChatRoom extends React.Component {
                     {
                       type === 'room' ? (
                         <div className="bottom-area">
-                          <div className="bottom-area-column">群组成员</div>
-                          <div className="bottom-area-content">{Utils.renderOnlines(onlines)}</div>
+                          <div className="bottom-area-column">{`群组成员${memberRender.count}`}</div>
+                          <div className="bottom-area-content">{memberRender.arr}</div>
                         </div>
                       ) : (
                         <div className="bottom-area">

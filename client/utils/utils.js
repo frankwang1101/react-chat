@@ -15,6 +15,24 @@ export function renderOnlines(array) {
   )
 }
 
+export function renderRoomMembers(room){
+  let online = room.owner.online?1:0;
+  const owner = <li key={`userkey${room.owner._id}`} className={`user-item ${room.owner.online?'user-item-online':''}`} data-username={`${room.owner.username}`} title={room.owner.nickname} >{`群主--${room.owner.nickname}(${room.owner.username})`}</li>;
+  const admins = room.administrators.map( v => {
+    v.online && (online++);
+    return <li key={`userkey${v._id}`} className={`user-item ${v.online?'user-item-online':''}`} data-username={`${v.username}`} title={v.nickname} >{`管理员--${v.nickname}(${v.username})`}</li>
+  })
+  const members = room.members.map( v => {
+    v.online && (online++);
+    return <li key={`userkey${v._id}`} className={`user-item ${v.online?'user-item-online':''}`} data-username={`${v.username}`} title={v.nickname} >{`${v.nickname}(${v.username})`}</li>;
+  })
+  const arr = [owner].concat(admins).concat(members);
+  return {
+    arr: ( <ul>{arr}</ul> ),
+    count: `(${online}/${arr.length})`,
+  };
+}
+
 export function renderMsgs(array) {
   return array.map((v, i) => {
     let res = '';
@@ -73,19 +91,29 @@ export function renderSearchRes(arr, add, from) {
   )
 }
 
-export function openNotification(newMessage, history) {
+export function openNotification(newMessage,  history) {
   const key = `open${Date.now()}`;
+  let messageStr = '';  
   const btnClick = function () {
     notification.close(key);
-    history.push(`/${newMessage.type}/${newMessage.token}`);
+    if(newMessage.type === 'user'){
+      history.push(`/${newMessage.type}/${newMessage.token}`);
+    }else if(newMessage.type === 'room'){
+      history.push(`/${newMessage.type}/${newMessage._id}`);
+    }
   };
   const btn = (
     <Button type="primary" size="small" onClick={() => btnClick()}>
       Check
     </Button>
   );
+  if(newMessage.type === 'user'){
+    messageStr = `来自好友${newMessage.user.nickname}`;
+  }else if(newMessage.type === 'room'){
+    messageStr = `来自群组${newMessage.roomname}`;
+  }
   notification.open({
-    message: `${newMessage.user.nickname}`,
+    message: messageStr,
     description: newMessage.msg,
     btn,
     key,
@@ -139,8 +167,8 @@ export function renderRecord(records, deal) {
             {`${v.content}  ${moment(data.date).format('YYYY-MM-DD HH:mm:ss')}`}
           </div>
           <div className={`operate ${v.isDeal ? 'disabled' : ''}`}>
-            <Button>回复</Button>
-            <Button>已读</Button>
+            <Button onClick={() => deal(v, true)}>回复</Button>
+            <Button onClick={() => deal(v, false)}>已读</Button>
           </div>
         </div>
       )
@@ -174,6 +202,20 @@ export function renderRecord(records, deal) {
           </div>
         </div>
       )
+    } else if(v.type === 'roomMsg'){
+      <div className="rec rec-msg">
+        <div className="user-head">
+          <img src={user.avatar} alt={user.nickname} />
+          <span>{user.nickname}</span>
+        </div>
+        <div className="content">
+          {`${v.content}  ${moment(data.date).format('YYYY-MM-DD HH:mm:ss')}`}
+        </div>
+        <div className={`operate ${v.isDeal ? 'disabled' : ''}`}>
+          <Button onClick={() => deal(v, true)}>回复</Button>
+            <Button onClick={() => deal(v, false)}>已读</Button>
+        </div>
+      </div>
     }
   })
 }

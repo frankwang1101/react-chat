@@ -127,24 +127,29 @@ module.exports = (app) => {
     }
   });
   app.get('/dealmessages/:id', async (req, res) => {
-    const id = req.params.id;
-    let token = req.headers['authrorization'];
-    const resolve = await JwtUtil.serverJwtValid(token);
-    if (resolve) {
-      token = JwtUtil.updateToken(resolve, token);
-      await Message.setDeal(id);
-      res.send({ success: true });
-    } else {
-      res.send({ success: false, msg: '更新消息状态失败!' });
+    try {
+      const id = req.params.id;
+      let token = req.headers['authrorization'];
+      const resolve = await JwtUtil.serverJwtValid(token);
+      if (resolve) {
+        token = JwtUtil.updateToken(resolve, token);
+        await Message.setDeal(id);
+        res.send({ success: true });
+      } else {
+        res.send({ success: false, msg: '更新消息状态失败!' });
+      }
+    } catch (e) {
+      console.log(e);
+      res.send({ success: false });
     }
   })
   app.post('/create_room', par, async (req, res) => {
-    const params = JSON.parse(req.body);
-    let token = req.headers['authrorization'];
-    const resolve = await JwtUtil.serverJwtValid(token);
-    if (resolve) {
-      try {
-        const {roomInfo, userInfo} = params;
+    try {
+      const params = JSON.parse(req.body);
+      let token = req.headers['authrorization'];
+      const resolve = await JwtUtil.serverJwtValid(token);
+      if (resolve) {
+        const { roomInfo, userInfo } = params;
         const room = await Room.create({
           roomname: roomInfo.roomname,
           roomdesc: roomInfo.roomdesc,
@@ -152,24 +157,24 @@ module.exports = (app) => {
           owner: userInfo._id,
         });
         res.send({ success: true, room });
-      } catch (e) {
-        res.send({ success: false, msg: e });
+      } else {
+        res.send({ success: false, msg: '更新消息状态失败!' });
       }
-    } else {
-      res.send({ success: false, msg: '更新消息状态失败!' });
+    } catch (e) {
+      res.send({ success: false, msg: e });
     }
   })
   app.get('/get_room/:id', async (req, res) => {
-    const params = req.params.id;
-    try{
+    try {
+      const id = req.params.id;
       const room = await Room.getRoomById(id);
-      if(!!room){
-        res.send({ success:true, room:room.toObject()});
-      }else{
-        res.send({ success: false});
+      if (!!room) {
+        res.send({ success: true, room: room.toObject() });
+      } else {
+        res.send({ success: false });
       }
-    }catch(e){
-      res.send({ success: false});
+    } catch (e) {
+      res.send({ success: false });
     }
   });
 }

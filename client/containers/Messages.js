@@ -61,6 +61,10 @@ class Messages extends React.Component {
       }else{
         this.props.socket && this.props.socket.emit('targetMsg', JSON.stringify({ id:data._id, user, type:'accept',msg:false }));
       }
+    } else if(v.type === 'roomMsg'){
+      if(flag){
+        this.props.history.push(`/room/${data.room._id}`);
+      }
     }
   }
   render() {

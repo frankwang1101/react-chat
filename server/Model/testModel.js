@@ -19,4 +19,10 @@ import Room from './Room'
 //   return;
 // })
 //获取群组信息
-Room.getRoomById('591c47348ef1b958400c40fd').then( res => console.log(res.toObject()));
+async function test(){
+ const room = await Room.getRoomById('591c46bb8ef1b958400c40fb');
+ if(!!room){
+   console.log(room);
+ }
+}
+test();

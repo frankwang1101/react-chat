@@ -20,6 +20,7 @@ const User = mongoose.Schema({
     password: String,
     gender: String,
     avatar: String,
+    online: Boolean,
 })
 User.add({
     friends: [{ type:  ObjectId, ref: 'User' }]

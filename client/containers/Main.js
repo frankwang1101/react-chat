@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { Dropdown, Menu, Icon, Layout, Spin } from 'antd'
-import { withRouter, Link } from 'react-router-dom'
+import {  BrowserRouter as Router, Route, withRouter, Link } from 'react-router-dom'
 import * as Actions from '../actions/actions'
 import * as Utils from '../utils/utils'
 
@@ -28,20 +28,29 @@ class App extends Component {
   componentDidMount() {
   }
   componentWillReceiveProps(next) {
-    if(!this.props.user && next.user){
-      if(next.user.unread > 0){
-        Notification.requestPermission(function(status) {
-          var n = new Notification('未读消息', { body: `您有${next.user.unread}条消息未读!` }); 
+    if (!this.props.user && next.user) {
+      if (next.user.unread > 0) {
+        Notification.requestPermission(function (status) {
+          var n = new Notification('未读消息', { body: `您有${next.user.unread}条消息未读!` });
         });
       }
     }
     if (next.newMessage) {
-      if(next.newMessage.user._id === this.props.user._id){
-        next.newMessage.show = true;
-      }
-      if (this.props.location.pathname.indexOf(`/${next.newMessage.type}/`) === -1 && !next.newMessage.show) {
-        next.newMessage.show = true;
-        Utils.openNotification(next.newMessage, this.props.history);
+      if (next.newMessage.type === 'user') {
+        if (next.newMessage.user._id === this.props.user._id) {
+          next.newMessage.show = true;
+        }
+        if (!~this.props.location.pathname.indexOf(`/${next.newMessage.type}/`) && !next.newMessage.show) {
+          next.newMessage.show = true;
+          Utils.openNotification(next.newMessage, this.props.history);
+        }
+      } else if (next.newMessage.type === 'room') {
+        if (!~this.props.location.pathname.indexOf(`/${next.newMessage.type}/${next.newMessage._id}`) && !next.newMessage.show) {
+          next.newMessage.show = true;
+          Utils.openNotification(next.newMessage, this.props.history);
+        } else {
+          next.newMessage.show = true;
+        }
       }
     }
   }
@@ -65,8 +74,13 @@ class App extends Component {
       friends = user.friends.map(v => <Menu.Item key={`menu_user_${v._id}`} ><Link to={`/user/${v._id}`}>{v.nickname}</Link></Menu.Item>);
     }
     let rooms = null;
-    if(user && user.rooms){
-      rooms = user.rooms.map( v => <Menu.Item key={`menu_room_${v._id}`} ><Link to={`/room/${v._id}`}>{v.roomname}</Link></Menu.Item>);
+    if (user && user.rooms) {
+      rooms = user.rooms.map(v => <Menu.Item key={`menu_room_${v._id}`} ><Link to={`/room/${v._id}`}>{v.roomname}</Link></Menu.Item>);
+    }
+    let defaultSelectedKeys = ['public'];
+    switch (/^\/([^\/]+)\/\w+$/.exec(this.match.path)[0]) {
+      default:
+        break;
     }
     return (
       <Layout>
@@ -79,31 +93,33 @@ class App extends Component {
               mode="inline"
               style={{ height: '100%' }}
               theme={'dark'}
-              defaultSelectedKeys={['8']}
+              defaultSelectedKeys={defaultSelectedKeys}
               onClick={this.menuClick}
             >
-              <SubMenu key="sub1" title={<span><Icon type="user" />好友</span>}>
+              <SubMenu key="user" title={<span><Icon type="user" />好友</span>}>
                 {
                   friends
                 }
               </SubMenu>
-              <SubMenu key="sub2" title={<span><Icon type="laptop" />群组</span>}>
-              {
-                rooms
-              }
+              <SubMenu key="room" title={<span><Icon type="laptop" />群组</span>}>
+                {
+                  rooms
+                }
               </SubMenu>
-              <SubMenu key="sub3" title={<span><Icon type="notification" />个人中心</span>}>
-                <Menu.Item key="9"><Link to="/search" >搜索好友</Link></Menu.Item>
-                <Menu.Item key="10"><Link to="/create_room" >创建群组</Link></Menu.Item>
-                <Menu.Item key="11"><Link to="/messages">消息中心({user ? user.unread : 0})</Link></Menu.Item>
+              <SubMenu key="center" title={<span><Icon type="notification" />个人中心</span>}>
+                <Menu.Item key="search"><Link to="/search" >搜索好友</Link></Menu.Item>
+                <Menu.Item key="create_room"><Link to="/create_room" >创建群组</Link></Menu.Item>
+                <Menu.Item key="message"><Link to="/messages">消息中心({user ? user.unread : 0})</Link></Menu.Item>
                 <Menu.Item key="logout">退出</Menu.Item>
               </SubMenu>
-              <Menu.Item key="8"><Link to="/" >公共聊天室</Link></Menu.Item>
+              <Menu.Item key="public"><Link to="/" >公共聊天室</Link></Menu.Item>
             </Menu>
           </Sider>
           <Layout>
             <Content className="content">
-              {<Spin spinning={this.props.user?false:true}>{this.props.children}</Spin>}
+              {<Spin spinning={this.props.user ? false : true}>
+                
+              </Spin>}
             </Content>
           </Layout>
         </Layout>

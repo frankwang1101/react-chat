@@ -45,7 +45,7 @@ function wideT(node){
 }
 wideT(data)
 
-只是访问对象的广度遍历
+//只是访问对象的广度遍历
 let datas = [];
 function wideTN(node){
   datas.push(node);
@@ -72,3 +72,11 @@ function deepTN(node){
   }
 }
 deepTN(data);
+
+function par(){
+  function child(){
+    console.log('---');
+    console.log(this);
+  }
+  child();
+}

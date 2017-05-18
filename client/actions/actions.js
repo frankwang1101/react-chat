@@ -200,7 +200,7 @@ export function login(data) {
         if (result.success === true) {
           const token = result.info.token;
           localStorage.setItem('chat-token', token);
-          dispatch({ type: 'UPDATELOGININFO', data: result.info });
+          dispatch({ type: 'UPDATELOGININFO', info: result.info });
           connectInit(dispatch);
           resolve();
         } else {

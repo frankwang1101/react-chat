@@ -26,28 +26,26 @@ module.exports = (app) => {
       res.send({ msg: 'create User success!', success: true })
     })
   })
-  app.post('/login', par, (req, res) => {
-    const info = JSON.parse(req.body);
-    User.check(info).then(result => {
-      try {
-        if (result) {
-          const info = result.toObject();
-          delete info.password;
-          const token = JwtUtil.addToken(info, req);
-          info.token = token;
-          Message.getUndealCount(info._id).then(unread => {
-            info.unread = unread;
-            res.send({ success: true, info: info });
-          });
-        } else {
-          res.send({ success: false, msg: "wrong username or password!" });
-        }
-      } catch (err) {
-        console.log(err)
+  app.post('/login', par, async (req, res) => {
+    try {
+      const info = JSON.parse(req.body);
+      const resul = await User.check(info);
+      if (result) {
+        const info = result.toObject();
+        const token = JwtUtil.addToken(info, req);
+        info.token = token;
+        const unread = await Message.getUndealCount(info._id);
+        const rooms = await Room.getUserRoom(info._id)
+        info.unread = unread;
+        info.rooms = rooms;
+        res.send({ success: true, info: info });
+      } else {
+        res.send({ success: false, msg: "wrong username or password!" });
       }
-    }).catch(err => {
+    } catch (err) {
       res.send({ success: false, msg: err });
-    })
+      console.log(err)
+    }
   })
   app.get('/checkjwt', (req, res) => {
     let token = req.headers['authrorization'];

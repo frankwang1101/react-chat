@@ -73,10 +73,3 @@ function deepTN(node){
 }
 deepTN(data);
 
-function par(){
-  function child(){
-    console.log('---');
-    console.log(this);
-  }
-  child();
-}

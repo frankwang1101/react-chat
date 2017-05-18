@@ -4,11 +4,63 @@ import { Dropdown, Menu, Icon, Layout, Spin } from 'antd'
 import {  BrowserRouter as Router, Route, withRouter, Link } from 'react-router-dom'
 import * as Actions from '../actions/actions'
 import * as Utils from '../utils/utils'
+import ChatRoom from '../containers/ChatRoom'
+import Search from '../containers/Search'
+import Messages from '../containers/Messages'
+import Room from '../containers/Room'
 
 require('../style/index.less')
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
+
+const otherMatch = ({ match }) => {
+  if (match.path === '/search') {
+    return <Search />
+  } else if (match.path === '/messages') {
+    return <Messages />
+  } else if (match.path === '/create_room') {
+    return <Room />
+  }
+}
+
+const chatRoomMatch = ({ match }) => {
+  let type = "public";
+  if (match.path === '/room/:id') {
+    type = 'room';
+  } else if (match.path === '/user/:id') {
+    type = 'user';
+  }
+  return <ChatRoom params={match.params} type={type} />;
+}
+
+const routes = [
+      {
+        path:'/',
+        exact:true,
+        component:chatRoomMatch
+      },{
+        path:'/user/:id',
+        exact:false,
+        component:chatRoomMatch
+      },{
+        path:'/room/:id',
+        exact:false,
+        component:chatRoomMatch
+      },{
+        path:'/search',
+        exact:false,
+        component:otherMatch
+      },{
+        path:'/messages',
+        exact:false,
+        component:otherMatch
+      },{
+        path:'/create_room',
+        exact:false,
+        component:otherMatch
+      }
+    ];
 
 class App extends Component {
   constructor(args) {
@@ -78,10 +130,14 @@ class App extends Component {
       rooms = user.rooms.map(v => <Menu.Item key={`menu_room_${v._id}`} ><Link to={`/room/${v._id}`}>{v.roomname}</Link></Menu.Item>);
     }
     let defaultSelectedKeys = ['public'];
-    switch (/^\/([^\/]+)\/\w+$/.exec(this.match.path)[0]) {
-      default:
-        break;
-    }
+    // if(this.props.match && this.props.match.path !== '/'){
+    //   switch (/^\/([^\/]+)\/\w+$/.exec(this.props.match.path)[0]) {
+    //     default:
+    //       break;
+    //   }
+    // }
+    
+    
     return (
       <Layout>
         <Header className="header">
@@ -118,7 +174,16 @@ class App extends Component {
           <Layout>
             <Content className="content">
               {<Spin spinning={this.props.user ? false : true}>
-                
+                {
+                  routes.map( (route, index) => (
+                    <Route
+                      key={index}
+                      path={route.path}
+                      exact={route.exact}
+                      component={route.component}
+                    />
+                  ))
+                }
               </Spin>}
             </Content>
           </Layout>

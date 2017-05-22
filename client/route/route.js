@@ -1,10 +1,21 @@
 import React from 'react'
 import { HashRouter as Router, hashHistory, Route, IndexRoute, Switch } from 'react-router-dom'
 import Main from '../containers/Main'
-import Login from '../containers/Login'
-import Signup from '../containers/Signup'
+import Bundle from '../components/Bundle'
+import LoadLogin from 'bundle-loader?lazy&name=chat-login!../containers/Login'
+import LoadSignup from 'bundle-loader?lazy&name=chat-signup!../containers/Signup'
 
+const Login = () => (
+  <Bundle load={LoadLogin}>
+    {(Login) =>　<Login />}
+  </Bundle>
+)
 
+const Signup = () => (
+  <Bundle load={LoadSignup}>
+    {(Signup) =>　<Signup />}
+  </Bundle>
+)
 
 export default function () {
   return (
@@ -16,4 +27,4 @@ export default function () {
       </Switch>
     </Router>
   )
-}
+} 

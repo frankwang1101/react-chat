@@ -49,7 +49,7 @@ export function renderMsgs(array) {
       case 'msg': {
         res = <div className="msg-row" key={key}>
           <div><span className="name">{`${v.user.nickname}`}</span><span className="time">{`  ${moment(v.date).format('YYYY-MM-DD HH:mm:ss')}`}</span></div>
-          <pre>{v.msg}</pre>
+          <pre dangerouslySetInnerHTML={{__html:v.msg}}></pre>
         </div>
         break;
       }

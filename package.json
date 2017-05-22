@@ -11,6 +11,7 @@
     "babel-preset-stage-3": "^6.24.1",
     "babel-register": "^6.24.1",
     "body-parser": "^1.17.1",
+    "bundle-loader": "^0.5.5",
     "eslint": "^3.19.0",
     "eslint-loader": "^1.7.1",
     "express": "^4.15.2",

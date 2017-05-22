@@ -2,11 +2,15 @@ var path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  entry: ['webpack-hot-middleware/client?path=/__webpack_hmr','./client/index.js'],
+  entry: {
+    app:['webpack-hot-middleware/client?path=/__webpack_hmr','./client/index.js'],
+    vendor: ['react', 'react-dom', 'react-router-dom']
+  },
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/'
+    publicPath: '/',
+    chunkFilename: '[name]-[id].[chunkhash:8].bundle.js'
   },
   module:{
     loaders: [
@@ -32,5 +36,6 @@ module.exports = {
 
     new webpack.NamedModulesPlugin(),
     // prints more readable module names in the browser console on HMR updates
+    new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.bundle.js')
   ],
 };

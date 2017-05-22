@@ -1,12 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import {Button, Spin, Alert} from 'antd'
+import {Button, Spin, Alert, Icon, Select} from 'antd'
 import * as actions from '../actions/actions'
 import { withRouter } from 'react-router-dom'
 import * as Utils from '../utils/utils'
-
-
-
+import FontChange from '../components/FontChange'
+import EmojiPick from '../components/EmojiPick'
 
 class ChatRoom extends React.Component {
   constructor(args) {
@@ -19,6 +18,8 @@ class ChatRoom extends React.Component {
     this.state = {
       loading
     }
+    this.fontChange = this.fontChange.bind(this);
+    this.getEmoji = this.getEmoji.bind(this);
   }
   componentWillMount() {
     console.log('will mount');
@@ -75,10 +76,15 @@ class ChatRoom extends React.Component {
     return true;
   }
   componentDidMount() {
-    console.log('mount..');
+    const target = document.querySelector('.message-area');
+    target.scrollTop = target.scrollHeight;
+  }
+  componentDidUpdate(){
+    const target = document.querySelector('.message-area');
+    target.scrollTop = target.scrollHeight;
   }
   send() {
-    const msg = this.target.value;
+    const msg = this.target.innerHTML;
     if(msg.length === 0){
       Utils.sendMessage('error','请填写要发送的内容!')
       return;
@@ -88,10 +94,16 @@ class ChatRoom extends React.Component {
       target = this.state.target;
     }
     actions.emitMsg(this.props.socket, msg, this.props.user, target, this.props.type, this.state.room);
-    this.target.value = '';
+    this.target.innerHTML = '';
+    this.target.focus();
+  }
+  fontChange(font){
+    console.log(font);
+  }
+  getEmoji(code){
+    this.target.innerHTML += code.replace(/^\[emoji-(\w+)\]$/,'<i class="icon icon-$1 icon-inline" contenteditable="false" />');
   }
   render() {
-    console.log('re-render..');
     const { msgs, user, onlines, type, userMsgs, roomMsgs } = this.props;
     const room = this.state.room;
     let msgArr = [];
@@ -131,8 +143,13 @@ class ChatRoom extends React.Component {
                     Utils.renderMsgs(msgArr)
                   }
                 </div>
+                <div className="operate-area">
+                  <EmojiPick onClick={this.getEmoji}/>
+                  <Button icon="plus-square-o" className="operate-button operate-button-open"/>
+                  <FontChange onChange={this.fontChange} />
+                </div>
                 <div className="send-area">
-                  <textarea className="input-area" ref={(t) => { this.target = t }}></textarea>
+                  <div className="input-area" ref={(t) => { this.target = t }} contentEditable></div>
                   <Button className="send-btn" type="primary" onClick={this.send}>SEND</Button>
                 </div>
               </div>

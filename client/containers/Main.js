@@ -5,14 +5,33 @@ import {  BrowserRouter as Router, Route, withRouter, Link } from 'react-router-
 import * as Actions from '../actions/actions'
 import * as Utils from '../utils/utils'
 import ChatRoom from '../containers/ChatRoom'
-import Search from '../containers/Search'
-import Messages from '../containers/Messages'
-import Room from '../containers/Room'
+import LoadSearch from 'bundle-loader?lazy&name=chat-search!../containers/Search'
+import LoadMessages from 'bundle-loader?lazy&name=chat-messages!../containers/Messages'
+import LoadRoom from 'bundle-loader?lazy&name=chat-room!../containers/Room'
+import Bundle from '../components/Bundle'
 
 require('../style/index.less')
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
+
+const Search = () => (
+  <Bundle load={LoadSearch}>
+    {(Search) => <Search></Search>}
+  </Bundle>
+)
+
+const Messages = () => (
+  <Bundle load={LoadMessages}>
+    {(Messages) => <Messages></Messages>}
+  </Bundle>
+)
+
+const Room = () => (
+  <Bundle load={LoadRoom}>
+    {(Room) => <Room></Room>}
+  </Bundle>
+)
 
 const otherMatch = ({ match }) => {
   if (match.path === '/search') {
@@ -130,14 +149,6 @@ class App extends Component {
       rooms = user.rooms.map(v => <Menu.Item key={`menu_room_${v._id}`} ><Link to={`/room/${v._id}`}>{v.roomname}</Link></Menu.Item>);
     }
     let defaultSelectedKeys = ['public'];
-    // if(this.props.match && this.props.match.path !== '/'){
-    //   switch (/^\/([^\/]+)\/\w+$/.exec(this.props.match.path)[0]) {
-    //     default:
-    //       break;
-    //   }
-    // }
-    
-    
     return (
       <Layout>
         <Header className="header">

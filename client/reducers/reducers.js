@@ -62,6 +62,9 @@ export function chatReducer(state = initState, action) {
       const user = Object.assign({}, state.user, { rooms });
       return Object.assign({}, state, { user });
     }
+    case 'FONTCHANGE': {
+      return Object.assign({}, state, { font: action.font});
+    }
     default:
       return state;
   }

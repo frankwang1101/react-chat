@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Alert, Icon } from 'antd'
 import '../style/emoji.less'
 
-class FontChange extends React.PureComponent {
+class EmojiPick extends React.PureComponent {
   constructor(...args) {
     super(...args);
     this.state = {
@@ -99,4 +99,4 @@ class FontChange extends React.PureComponent {
   }
 }
 
-export default FontChange;
+export default EmojiPick;

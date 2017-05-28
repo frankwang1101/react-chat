@@ -36,7 +36,13 @@ class FontChange extends React.Component {
     }
     state = Object.assign(state,tempState);
     this.setState(state);
-    this.props.onChange && this.props.onChange(state);
+    this.props.onChange && this.props.onChange({
+      fontWeight: state.bold?'bold':'normal',
+      fontStyle: state.italic?'italic':'normal',
+      textDecoration: state.underline?'underline':'',
+      fontFamily: state.fontFamily,
+      color: state.fontColor
+    });
   }
   render() {
     return (

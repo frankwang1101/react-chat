@@ -19,10 +19,12 @@ import Room from './Room'
 //   return;
 // })
 //获取群组信息
-async function test(){
- const room = await Room.getRoomById('591c46bb8ef1b958400c40fb');
- if(!!room){
-   console.log(room);
- }
-}
-test();
+// async function test(){
+//  const room = await Room.getRoomById('591c46bb8ef1b958400c40fb');
+//  if(!!room){
+//    console.log(room);
+//  }
+// }
+// test();
+//测试UserCheck
+User.check({username:'admin',password:'root'})

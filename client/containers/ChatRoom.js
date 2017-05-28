@@ -93,12 +93,12 @@ class ChatRoom extends React.Component {
     if(this.props.type !== 'public'){
       target = this.state.target;
     }
-    actions.emitMsg(this.props.socket, msg, this.props.user, target, this.props.type, this.state.room);
+    actions.emitMsg(this.props.socket, {msg, font:this.props.font}, this.props.user, target, this.props.type, this.state.room);
     this.target.innerHTML = '';
     this.target.focus();
   }
   fontChange(font){
-    console.log(font);
+    this.props.fontChange(font);
   }
   getEmoji(code){
     this.target.innerHTML += code.replace(/^\[emoji-(\w+)\]$/,'<i class="icon icon-$1 icon-inline" contenteditable="false" />');
@@ -185,9 +185,9 @@ class ChatRoom extends React.Component {
   }
 }
 const mapStateToProp = (state) => {
-  const { chatReducer: { msgs, user, socket, onlines, userMsgs, roomMsgs } } = state;
+  const { chatReducer: { msgs, user, socket, onlines, userMsgs, roomMsgs, font } } = state;
   return {
-    msgs, user, socket, onlines, userMsgs, roomMsgs
+    msgs, user, socket, onlines, userMsgs, roomMsgs, font
   }
 }
 const mapDispatchToProp = (dispatch) => {
@@ -195,6 +195,7 @@ const mapDispatchToProp = (dispatch) => {
     init: () => { dispatch(actions.connectInit()) },
     getRoom: (id) => dispatch(actions.getRoom(id)),
     getUser: (id) => dispatch(actions.getUser(id)),
+    fontChange: (font) => dispatch(actions.fontChange(font))
   }
 }
 export default withRouter(connect(mapStateToProp, mapDispatchToProp)(ChatRoom));

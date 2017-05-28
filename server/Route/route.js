@@ -29,7 +29,7 @@ module.exports = (app) => {
   app.post('/login', par, async (req, res) => {
     try {
       const info = JSON.parse(req.body);
-      const resul = await User.check(info);
+      const result = await User.check(info);
       if (result) {
         const info = result.toObject();
         const token = JwtUtil.addToken(info, req);

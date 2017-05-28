@@ -57,11 +57,11 @@ export function connectInit(dispatch) {
       } else if(res.type === 'roomMsg'){
         dispatch({ type:'ROOMMSG', msg:{msg: res.msg, room: res.room, from: res.from}});
       }
-    })
+    });
   }
 }
 
-export function emitMsg(socket, msg, user, target, type, room) {
+export function emitMsg(socket, msg, user, target, type, room, font) {
   if (type === 'public') {
     socket.emit('msg', JSON.stringify({
       user,
@@ -178,6 +178,11 @@ export function checkJwt() {
           .then(res => res.json()).then(result => {
             if (result.success === true) {
               localStorage.setItem('token', result.token);
+              let font = localStorage.getItem('reactChatFont');
+              if(!font){
+                font = null;
+              }
+              result.info.font = JSON.parse(font);
               dispatch({ type: 'UPDATELOGININFO', info: result.info })
               resolve();
             } else {
@@ -329,5 +334,13 @@ export function changeRoomMember(data) {
         return false;
       }
     }
+  }
+}
+
+export function fontChange(font){
+  return dispatch => {
+    localStorage.removeItem('reactChatFont');
+    localStorage.setItem('reactChatFont',JSON.stringify(font));
+    dispatch({ type: 'FONTCHANGE', font: font});
   }
 }

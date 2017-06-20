@@ -344,3 +344,8 @@ export function fontChange(font){
     dispatch({ type: 'FONTCHANGE', font: font});
   }
 }
+
+export function exitGroup(id){
+
+}
+

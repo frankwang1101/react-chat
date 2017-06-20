@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { Dropdown, Menu, Icon, Layout, Spin } from 'antd'
-import {  BrowserRouter as Router, Route, withRouter, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Route, withRouter, Link } from 'react-router-dom'
 import * as Actions from '../actions/actions'
 import * as Utils from '../utils/utils'
 import ChatRoom from '../containers/ChatRoom'
@@ -9,6 +9,8 @@ import LoadSearch from 'bundle-loader?lazy&name=chat-search!../containers/Search
 import LoadMessages from 'bundle-loader?lazy&name=chat-messages!../containers/Messages'
 import LoadRoom from 'bundle-loader?lazy&name=chat-room!../containers/Room'
 import Bundle from '../components/Bundle'
+import * as DialogUtil from '../components/Dialog'
+import AssignWin from '../containers/Assign'
 
 require('../style/index.less')
 
@@ -54,37 +56,41 @@ const chatRoomMatch = ({ match }) => {
 }
 
 const routes = [
-      {
-        path:'/',
-        exact:true,
-        component:chatRoomMatch
-      },{
-        path:'/user/:id',
-        exact:false,
-        component:chatRoomMatch
-      },{
-        path:'/room/:id',
-        exact:false,
-        component:chatRoomMatch
-      },{
-        path:'/search',
-        exact:false,
-        component:otherMatch
-      },{
-        path:'/messages',
-        exact:false,
-        component:otherMatch
-      },{
-        path:'/create_room',
-        exact:false,
-        component:otherMatch
-      }
-    ];
+  {
+    path: '/',
+    exact: true,
+    component: chatRoomMatch
+  }, {
+    path: '/user/:id',
+    exact: false,
+    component: chatRoomMatch
+  }, {
+    path: '/room/:id',
+    exact: false,
+    component: chatRoomMatch
+  }, {
+    path: '/search',
+    exact: false,
+    component: otherMatch
+  }, {
+    path: '/messages',
+    exact: false,
+    component: otherMatch
+  }, {
+    path: '/create_room',
+    exact: false,
+    component: otherMatch
+  }
+];
 
 class App extends Component {
   constructor(args) {
     super(args)
-    this.menuClick = this.menuClick.bind(this)
+    this.menuClick = this.menuClick.bind(this);
+    this.menuRightClick = this.menuRightClick.bind(this);
+    this.roomOperate = this.roomOperate.bind(this);
+    this.openAssignWin = this.openAssignWin.bind(this);
+    this.dealUserChange = this.dealUserChange.bind(this);
   }
   componentWillMount() {
     console.log('will');
@@ -138,6 +144,121 @@ class App extends Component {
       }
     }
   }
+  openAssignWin(config) {
+    DialogUtil.open(<AssignWin config={config} />);
+  }
+  dealUserChange(user,type) {
+    console.log(user);
+    console.log(type);
+    if(type === 'auth'){
+      
+    }else if(type === 'person'){
+
+    }
+  }
+  getUserData(type,...args){
+    const room = args[0];
+    if(type === 'person'){
+      let ids = [room.owner].concat(room.members).concat(room.administrators);
+      let arr =  this.props.user.friends.map(v => ({id:v._id,name:v.nickname,username:v.username,key:v._id}));
+      arr = arr.filter(v => {
+        return !!!~ids.indexOf(v.id);
+      })
+      return arr;
+    }
+  }
+  roomOperate(type, room) {
+    switch (type) {
+      case 'person':{
+        const config = {
+          width: '500px',
+          height: '300px',
+          title: '成员添加',
+          type,
+          cb: this.dealUserChange,
+          getData: () => {
+            return new Promise((res) => {
+              const datas = this.getUserData(type, room);
+              res({datas:datas,targets:[]});
+            })
+          }
+        }
+        this.openAssignWin(config);
+        break;
+      }
+      case 'auth': {
+        const config = {
+          width: '500px',
+          height: '300px',
+          title: '群组权限管理',
+          type,
+          cb: this.dealUserChange,
+          getData: () => {
+            return new Promise((res, rej) => {
+              this.props.getRoom(room._id)
+                .then(room => {
+                  if(room){
+                    const members = room.members.map(v => ({id:v._id,name:v.nickname,username:v.username,key:v._id}));
+                    const admins = room.administrators.map(v => ({id:v._id,name:v.nickname,username:v.username,key:v._id}));
+                    res({datas:members.concat(admins),targets:admins.map(v => v._id)});
+                  }else{
+                    rej(false);
+                  }
+                })
+            });
+          },
+        }
+        this.openAssignWin(config);
+        break;
+      }
+      case 'dismiss': {
+        this.props.dismiss(id);
+        break;
+      }
+      case 'view': {
+
+      }
+      case 'exit': {
+        this.props.exitGroup();
+      }
+    }
+  }
+  menuRightClick(...args) {
+    const event = args[0];
+    const flag = args[1];
+    const room = args[2];
+    event.preventDefault();
+    event.stopPropagation();
+    const itemArr = [
+      <li onClick={() => this.roomOperate('person', room)} key={'right_menu_person'} className="context-menu-item">人员管理</li>,
+      <li onClick={() => this.roomOperate('auth', room)} key={'right_menu_auth'} className="context-menu-item">权限管理</li>,
+      <li onClick={() => this.roomOperate('dismiss', room)} key={'right_menu_dismiss'} className="context-menu-item">解散该群</li>,
+      <li onClick={() => this.roomOperate('view', room)} key={'right_menu_view'} className="context-menu-item">查看资料</li>,
+      <li onClick={() => this.roomOperate('exit', room)} key={'right_menu_exit'} className="context-menu-item">退出该群</li>,
+    ];
+    let pos = {
+      top: event.clientY,
+      left: event.clientX,
+      position: 'absolute'
+    };
+    const closeWinFunc = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      DialogUtil.closeWin('.context-modal')
+    };
+    const bgProps = {
+      onClick: closeWinFunc,
+      onContextMenu: closeWinFunc,
+    }
+    const contextMenu = (
+      <div className="context-background" {...bgProps}>
+        <ul className="context-menu" style={pos}>
+          {flag ? itemArr.slice(0, 4) : itemArr.slice(3)}
+        </ul>
+      </div>
+    );
+    DialogUtil.rightClickMenu(contextMenu);
+  }
   render() {
     const { user } = this.props
     let friends = null;
@@ -146,7 +267,7 @@ class App extends Component {
     }
     let rooms = null;
     if (user && user.rooms) {
-      rooms = user.rooms.map(v => <Menu.Item key={`menu_room_${v._id}`} ><Link to={`/room/${v._id}`}>{v.roomname}</Link></Menu.Item>);
+      rooms = user.rooms.map(v => <Menu.Item key={`menu_room_${v._id}`} ><Link onContextMenu={(e) => { this.menuRightClick(e, (v.owner === user._id) ? true : false, v )}} to={`/room/${v._id}`}>{v.roomname}</Link></Menu.Item>);
     }
     let defaultSelectedKeys = ['public'];
     return (
@@ -186,7 +307,7 @@ class App extends Component {
             <Content className="content">
               {<Spin spinning={this.props.user ? false : true}>
                 {
-                  routes.map( (route, index) => (
+                  routes.map((route, index) => (
                     <Route
                       key={index}
                       path={route.path}
@@ -218,6 +339,7 @@ const mapActionToDispatch = (dispatch) => ({
   updateInfo: (info) => dispatch(Actions.updateInfo(info)),
   checkJwt: () => dispatch(Actions.checkJwt()),
   init: () => { dispatch(Actions.connectInit()) },
+  getRoom: (id) => dispatch(Actions.getRoom(id)),
 })
 
 export default withRouter(connect(mapStateToProp, mapActionToDispatch)(App));

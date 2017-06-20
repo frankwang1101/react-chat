@@ -36,5 +36,15 @@ module.exports = {
         return RoomModel
               .find({"$or":[{administrators:uid},{owner:uid},{members:uid}]})
               .exec();
+      },
+      checkAddAuth: uid => {
+        return RoomModel
+              .find({"or":[{administrators:uid},{owner:uid}]})
+              .exec();
+      },
+      checkOwner: uid => {
+        return RoomModel
+              .find({"owner":uid})
+              .exec();
       }
 }

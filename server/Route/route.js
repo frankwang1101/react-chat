@@ -175,4 +175,26 @@ module.exports = (app) => {
       res.send({ success: false });
     }
   });
+  //给群组添加成员
+  app.post('/add_member', par, async (req, res) => {
+    try {
+      let token = req.headers['authrorization'];
+      const resolve = await JwtUtil.serverJwtValid(token);
+      if(resolve){
+        const params = JSON.parse(req.body);
+        const checkRes = await Room.checkAddAuth(resolve._id);
+        if(!!checkRes){
+          await Room.addMember({roomId:params.roomId,userId:params.ids});
+          res.send({ success: true, room: room.toObject() });
+        } else {
+          res.send({ success: false });
+        }
+      }else{
+        throw new SyntaxError('User valid error');
+      }
+    } catch (e) {
+      res.send({ success: false });
+    }
+  });
+  //任免管理员
 }

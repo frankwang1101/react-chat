@@ -1,3 +1,5 @@
+@greyborder: 1px solid  #d5d5d5;
+@commonblue: #108ee9;
 .wrap{
   position: relative;
   display: flex;
@@ -70,9 +72,9 @@
           }
         }
         .font-select{
-          color: #108ee9;
+          color: @commonblue;
           &:focus{
-            color: #108ee9;
+            color: @commonblue;
           }
         }
 
@@ -180,6 +182,13 @@
         font-size: 14px;
         text-align: center;
         background-color: hsla(0,0%,70%,.25);
+        .member-assign{
+          &:hover{
+            color:@commonblue;
+            cursor: pointer;
+          }
+          margin-right: 10px;
+        }
       }
       .bottom-area-content{ 
         height: 65%;
@@ -472,6 +481,91 @@
       }
       .ant-transfer-list-body-not-found{
         color: #fff;
+      }
+    }
+  }
+}
+.win-wrap{
+  
+  .win-shade{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 19891014;
+    background-color: #000;
+    opacity: 0.3;
+  }
+  .win-content{
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    .content-header{
+      background-color: #f6f6f6;
+      color: #212121;
+      border-bottom: @greyborder;
+      font-size: 16px;
+      height: 40px;
+      line-height: 40px;
+      position: relative;
+      .title-area{
+        margin-left: 10px;
+      }
+      .operate-area{
+        float: right;        
+        .btn-close{
+          font-size: 20px;
+          font-weight: bold;
+          margin-right: 10px;
+          cursor: pointer;
+          &:hover{
+            color: #d5d5d5;
+          }
+        }
+      }
+    }
+    .content-body{
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .content-operate{
+      background: #f0f0f0;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      height: 40px;
+      line-height: 40px;
+      border-top: @greyborder;
+    }
+  }
+}
+.context-background{
+  z-index: 199998;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  .context-menu{
+    width: 100px;
+    background-color: #fff;
+    border: @greyborder;
+    list-style: none;
+    z-index: 199999;
+    .context-menu-item{
+      height: 30px;
+      line-height: 30px;
+      color: #212121;
+      text-align: center;
+      &:hover{
+        background: @commonblue;
+        color: #fff;
+        cursor: pointer;
       }
     }
   }

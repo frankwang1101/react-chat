@@ -27,4 +27,4 @@ import Room from './Room'
 // }
 // test();
 //测试UserCheck
-User.check({username:'admin',password:'root'})
+// User.check({username:'admin',password:'root'})

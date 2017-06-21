@@ -8,6 +8,10 @@ export default {
   getMessages: 'messages',
   dealMessages: 'dealmessages',
   create_room: 'create_room',
-  change_member: 'change_member',
+  add_member: 'add_member',
   getRoom: 'get_room',
+  auth_manage: 'auth_manage',
+  remove_member: 'remove_member',
+  dismissRoom: '/remove_room/',
+  quitRoom: '/quit_room/'
 }

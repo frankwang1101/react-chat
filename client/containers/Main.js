@@ -147,13 +147,27 @@ class App extends Component {
   openAssignWin(config) {
     DialogUtil.open(<AssignWin config={config} />);
   }
-  dealUserChange(user,type) {
+  dealUserChange(user,type,roomId) {
     console.log(user);
     console.log(type);
     if(type === 'auth'){
-      
+      Actions.authManage(roomId,user)().then(res => {
+        if(!!res){
+          DialogUtil.closeWin('[name=reactDialog]');
+          Utils.sendMessage('success','管理权限成功!',1);
+        }else{
+          Utils.sendMessage('error','管理权限失败!',1);
+        }
+      });
     }else if(type === 'person'){
-
+      Actions.addMembers(roomId,user)().then(res => {
+        if(!!res){
+          DialogUtil.closeWin('[name=reactDialog]');
+          Utils.sendMessage('success','添加成员成功!',1);
+        }else{
+          Utils.sendMessage('error','添加成员失败!',1);
+        }
+      });
     }
   }
   getUserData(type,...args){
@@ -174,6 +188,7 @@ class App extends Component {
           width: '500px',
           height: '300px',
           title: '成员添加',
+          roomId:room._id,
           type,
           cb: this.dealUserChange,
           getData: () => {
@@ -191,6 +206,7 @@ class App extends Component {
           width: '500px',
           height: '300px',
           title: '群组权限管理',
+          roomId:room._id,
           type,
           cb: this.dealUserChange,
           getData: () => {
@@ -212,14 +228,14 @@ class App extends Component {
         break;
       }
       case 'dismiss': {
-        this.props.dismiss(id);
+        this.props.dismissRoom(room._id);
         break;
       }
       case 'view': {
 
       }
       case 'exit': {
-        this.props.exitGroup();
+        this.props.quitRoom(room._id);
       }
     }
   }
@@ -340,6 +356,8 @@ const mapActionToDispatch = (dispatch) => ({
   checkJwt: () => dispatch(Actions.checkJwt()),
   init: () => { dispatch(Actions.connectInit()) },
   getRoom: (id) => dispatch(Actions.getRoom(id)),
+  dismissRoom: (roomId) => dispatch(Actions.dismissRoom(roomId)),
+  quitRoom: (roomId) => dispatch(Actions.quitRoom(roomId))
 })
 
 export default withRouter(connect(mapStateToProp, mapActionToDispatch)(App));

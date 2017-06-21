@@ -28,3 +28,11 @@ import Room from './Room'
 // test();
 //测试UserCheck
 // User.check({username:'admin',password:'root'})
+console.log('sss');
+Room.addMember({roomId:'591c47348ef1b958400c40fd',userId:[
+  '594a6e86298126361ca2c17e',
+  '594a6e98298126361ca2c17f',
+  '594a6eed298126361ca2c180'
+]}).then((res) => {
+  console.log(res)
+})

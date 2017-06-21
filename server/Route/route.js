@@ -138,7 +138,7 @@ module.exports = (app) => {
       }
     } catch (e) {
       console.log(e);
-      res.send({ success: false });
+      res.send({ success: false, msg: e  });
     }
   })
   app.post('/create_room', par, async (req, res) => {
@@ -159,6 +159,7 @@ module.exports = (app) => {
         res.send({ success: false, msg: '更新消息状态失败!' });
       }
     } catch (e) {
+      console.log(e);
       res.send({ success: false, msg: e });
     }
   })
@@ -172,7 +173,8 @@ module.exports = (app) => {
         res.send({ success: false });
       }
     } catch (e) {
-      res.send({ success: false });
+      console.log(e);
+      res.send({ success: false, msg: e  });
     }
   });
   //给群组添加成员
@@ -180,21 +182,78 @@ module.exports = (app) => {
     try {
       let token = req.headers['authrorization'];
       const resolve = await JwtUtil.serverJwtValid(token);
-      if(resolve){
+      if (resolve) {
         const params = JSON.parse(req.body);
         const checkRes = await Room.checkAddAuth(resolve._id);
-        if(!!checkRes){
-          await Room.addMember({roomId:params.roomId,userId:params.ids});
-          res.send({ success: true, room: room.toObject() });
+        if (!!checkRes) {
+          await Room.addMember({ roomId: params.roomId, userId: params.ids });
+          res.send({ success: true });
         } else {
           res.send({ success: false });
         }
-      }else{
+      } else {
         throw new SyntaxError('User valid error');
       }
     } catch (e) {
-      res.send({ success: false });
+      console.log(e);
+      res.send({ success: false, msg: e  });
     }
   });
   //任免管理员
+  app.post('/auth_manage', par, async (req, res) => {
+    try {
+      let token = req.headers['authrorization'];
+      const resolve = await JwtUtil.serverJwtValid(token);
+      if (resolve) {
+        const params = JSON.parse(req.body);
+        const checkRes = await Room.checkOwner(params.roomId, resolve._id);
+        if (!!checkRes) {
+          await Room.authManage({ roomId: params.roomId, userId: params.ids });
+          res.send({ success: true });
+        } else {
+          res.send({ success: false });
+        }
+      } else {
+        throw new SyntaxError('User valid error');
+      }
+    } catch (e) {
+      console.log(e);
+      res.send({ success: false, msg: e  });
+    }
+  })
+  //删除群组
+  app.get('/remove_room/:id', async (req, res) => {
+    try {
+      let token = req.headers['authrorization'];
+      const resolve = await JwtUtil.serverJwtValid(token);
+      if (resolve) {
+        const checkRes = await Room.checkOwner(req.params.id, resolve._id);
+        if (!!checkRes) {
+          await Room.remove(req.params.id);
+          res.send({ success: true });
+        } else {
+          res.send({ success: false });
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      res.send({ success: false, msg: e  });
+    }
+  });
+  //退出群组
+  app.get('/quit_room/:id', async (req, res) => {
+    try {
+      let token = req.headers['authrorization'];
+      const resolve = await JwtUtil.serverJwtValid(token);
+      if (resolve) {
+        await Room.quit(req.params.id, resolve._id);
+        res.send({ success: true });
+      } else {
+        res.send({ success: false });
+      }
+    } catch (e) {
+      console.log(e);
+      res.send({ success: false, msg: e  });
+    }
+  })
 }

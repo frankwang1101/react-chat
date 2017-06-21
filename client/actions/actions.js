@@ -54,8 +54,8 @@ export function connectInit(dispatch) {
         }
         notification.open(option);
         dispatch({ type: 'UPDATEROOMLIST', room: { _id: res._id, roomname: res.roomname } });
-      } else if(res.type === 'roomMsg'){
-        dispatch({ type:'ROOMMSG', msg:{msg: res.msg, room: res.room, from: res.from}});
+      } else if (res.type === 'roomMsg') {
+        dispatch({ type: 'ROOMMSG', msg: { msg: res.msg, room: res.room, from: res.from } });
       }
     });
   }
@@ -179,7 +179,7 @@ export function checkJwt() {
             if (result.success === true) {
               localStorage.setItem('token', result.token);
               let font = localStorage.getItem('reactChatFont');
-              if(!font){
+              if (!font) {
                 font = null;
               }
               result.info.font = JSON.parse(font);
@@ -312,23 +312,20 @@ export function notificateMember(socket, room, ids) {
     }
   ))
 }
-export function changeRoomMember(data) {
+export function removeRoomMember(data) {
   return async dispatch => {
     const token = localStorage.getItem('chat-token');
     if (!token) {
       return false;
     } else {
       const headers = new Headers({ Authrorization: token });
-      const json = await fetch(`${config.url}${config.change_member}`, {
+      const json = await fetch(`${config.url}${config.remove_member}`, {
         headers,
         body: JSON.stringify(data),
       });
       const result = await json.json();
       if (result.success === true) {
-        const user = await getUser(fid)(dispatch);
-        if (user !== false) {
-          dispatch({ type: 'UPDATELOGININFO', info: user })
-        }
+        //todo
         return true;
       } else {
         return false;
@@ -337,15 +334,100 @@ export function changeRoomMember(data) {
   }
 }
 
-export function fontChange(font){
+export function fontChange(font) {
   return dispatch => {
     localStorage.removeItem('reactChatFont');
-    localStorage.setItem('reactChatFont',JSON.stringify(font));
-    dispatch({ type: 'FONTCHANGE', font: font});
+    localStorage.setItem('reactChatFont', JSON.stringify(font));
+    dispatch({ type: 'FONTCHANGE', font: font });
   }
 }
 
-export function exitGroup(id){
-
+export function addMembers(roomId, ids) {
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const data = { roomId, ids };
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.add_member}`, {
+        headers,
+        method:'post',
+        body: JSON.stringify(data),
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        //todo
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
 }
 
+export function authManage(roomId, ids) {
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const data = { roomId, ids };
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.auth_manage}`, {
+        headers,
+        method:'post',
+        body: JSON.stringify(data),
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        //todo
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+export function dismissRoom(rid) {
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.dismissRoom}/${rid}`, {
+        headers,
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        //todo
+        return rid;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+export function quitRoom(rid) {
+  return async dispatch => {
+    const token = localStorage.getItem('chat-token');
+    if (!token) {
+      return false;
+    } else {
+      const headers = new Headers({ Authrorization: token });
+      const json = await fetch(`${config.url}${config.quitRoom}/${rid}`, {
+        headers,
+      });
+      const result = await json.json();
+      if (result.success === true) {
+        //todo
+        return rid;
+      } else {
+        return false;
+      }
+    }
+  }
+}

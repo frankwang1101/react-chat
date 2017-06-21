@@ -14,7 +14,7 @@ module.exports = {
       },
       addMember: ({ roomId, userId}) => {
         return RoomModel
-              .update({_id:roomId},{$push:{members:userId}})
+              .update({_id:roomId},{$pushAll:{members:userId}})
               .exec();
       },
       addAdmin: ({ roomId, userId}) => {
@@ -24,7 +24,7 @@ module.exports = {
       },
       quit: uid => {
         return RoomModel
-              .update({_id:roomId},{$pop:{members:userId}})
+              .update({_id:roomId},{$pop:{members:userId,administrators:userId}})
               .exec();
       },
       cancelAdmin: uid => {
@@ -42,9 +42,19 @@ module.exports = {
               .find({"or":[{administrators:uid},{owner:uid}]})
               .exec();
       },
-      checkOwner: uid => {
+      checkOwner: (roomId, uid) => {
         return RoomModel
-              .find({"owner":uid})
+              .find({_id:roomId,owner:uid})
+              .exec();
+      },
+      authManage: (id, adminIds) => {
+        return RoomModel
+              .update({_id:id},{$pop:{members:adminIds},$push:{administrators:adminIds}})
+              .exec();
+      },
+      remove: (id) => {
+        return RoomModel
+              .remove({_id:id})
               .exec();
       }
 }

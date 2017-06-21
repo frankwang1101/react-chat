@@ -77,7 +77,7 @@ export default class AssignWin extends React.Component {
             />
           </div>
           <div className="content-operate">
-            <Button type="primary" onClick={() => {this.props.config.cb(this.state.targets,this.props.config.type)}}>确定</Button>
+            <Button type="primary" onClick={() => {this.props.config.cb(this.state.targets,this.props.config.type,this.props.config.roomId)}}>确定</Button>
             <Button style={{ marginLeft: '10px' }} onClick={this.closeWin}>取消</Button>
           </div>
         </div>

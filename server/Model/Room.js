@@ -47,9 +47,9 @@ module.exports = {
               .find({_id:roomId,owner:uid})
               .exec();
       },
-      authManage: (id, adminIds) => {
+      authManage: (id, memberIds, adminIds) => {
         return RoomModel
-              .update({_id:id},{$pop:{members:adminIds},$push:{administrators:adminIds}})
+              .update({_id:id},{$set:{members:memberIds,administrators:adminIds}})
               .exec();
       },
       remove: (id) => {

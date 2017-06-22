@@ -7,6 +7,7 @@ const initState = {
   userMsgs: {},
   roomMsgs: {},
   keys: [],
+  socketNotice:{unique:parseInt(Math.random() * 10000)}
 }
 export function chatReducer(state = initState, action) {
   switch (action.type) {
@@ -64,6 +65,50 @@ export function chatReducer(state = initState, action) {
     }
     case 'FONTCHANGE': {
       return Object.assign({}, state, { font: action.font});
+    }
+    case 'ROOMAUTHCHANGE':{
+      const {rid,mid,aid} = action;
+      const rooms = state.user.rooms;
+      const newRooms = rooms.map(v => {
+        if(v._id === rid){
+          v.members = mid;
+          v.administrators = aid;
+        }
+        return v;
+      })
+      const user = Object.assign({}, state.user, {rooms:newRooms});
+      return Object.assign({},state,{user});
+    }
+    case 'SOCKETNOTICE':{
+      const data = action.data;
+      data.unique = parseInt(Math.random()*100000);
+      data.roomId = data.data;
+      let user = state.user;
+      if(data.type === 'dismiss'){
+        let rooms = state.user.rooms;
+        let temp = [];
+        rooms.forEach(v => {
+          if(v._id !== action.id){
+            temp.push(v);
+          }
+        })
+        user = Object.assign({},state.user,{rooms:temp});
+      }
+      return Object.assign({},state,{socketNotice:data, user});
+    }
+    case 'DISMISSROOM':{
+      let rooms = state.user.rooms;
+      let temp = [];
+      rooms.forEach(v => {
+        if(v._id !== action.id){
+          temp.push(v);
+        }
+      })
+      const user = Object.assign({},state.user,{rooms:temp});
+      return Object.assign({},state,{user});
+    }
+    case 'QUITGROUP':{
+      return state;
     }
     default:
       return state;

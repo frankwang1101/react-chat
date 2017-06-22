@@ -208,7 +208,7 @@ module.exports = (app) => {
         const params = JSON.parse(req.body);
         const checkRes = await Room.checkOwner(params.roomId, resolve._id);
         if (!!checkRes) {
-          await Room.authManage({ roomId: params.roomId, userId: params.ids });
+          await Room.authManage(params.roomId, params.ids, params.adminIds);
           res.send({ success: true });
         } else {
           res.send({ success: false });

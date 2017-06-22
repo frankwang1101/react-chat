@@ -54,6 +54,7 @@ class Messages extends React.Component {
             if(res){
               actions.notificateMember(this.props.socket, res, res.ids);
               Utils.sendMessage('success','创建成功!',1);
+              this.props.history.push('/');
             }else{
               Utils.sendMessage('success','创建失败!',1);
             }

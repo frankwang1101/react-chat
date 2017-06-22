@@ -51,7 +51,18 @@ class ChatRoom extends React.Component {
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.type === 'room') {
-      if (this.state.room._id !== nextProps.params.id) {
+      let flag = false;
+      if (this.state.room._id !== nextProps.params.id){
+        flag = true;
+      }else if(this.props.socketNotice.unique !== nextProps.socketNotice.unique && nextProps.socketNotice.type && nextProps.socketNotice.roomId === this.state.room._id ){
+        if(nextProps.socketNotice.type === 'person_change'){
+          flag = true;
+        }else if(nextProps.socketNotice.type === 'dismiss'){
+          this.props.history.push('/');
+          Utils.openNotification({msg:nextProps.socketNotice.msg,title:'群组解散'});
+        }
+      }
+      if (flag) {
         this.setState({
           loading: true
         })
@@ -192,9 +203,9 @@ class ChatRoom extends React.Component {
   }
 }
 const mapStateToProp = (state) => {
-  const { chatReducer: { msgs, user, socket, onlines, userMsgs, roomMsgs, font } } = state;
+  const { chatReducer: { msgs, user, socket, onlines, userMsgs, roomMsgs, font, socketNotice} } = state;
   return {
-    msgs, user, socket, onlines, userMsgs, roomMsgs, font
+    msgs, user, socket, onlines, userMsgs, roomMsgs, font,socketNotice
   }
 }
 const mapDispatchToProp = (dispatch) => {

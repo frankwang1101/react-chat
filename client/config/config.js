@@ -12,6 +12,6 @@ export default {
   getRoom: 'get_room',
   auth_manage: 'auth_manage',
   remove_member: 'remove_member',
-  dismissRoom: '/remove_room/',
-  quitRoom: '/quit_room/'
+  dismissRoom: 'remove_room',
+  quitRoom: 'quit_room'
 }

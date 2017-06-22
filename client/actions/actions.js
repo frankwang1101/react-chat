@@ -56,6 +56,8 @@ export function connectInit(dispatch) {
         dispatch({ type: 'UPDATEROOMLIST', room: { _id: res._id, roomname: res.roomname } });
       } else if (res.type === 'roomMsg') {
         dispatch({ type: 'ROOMMSG', msg: { msg: res.msg, room: res.room, from: res.from } });
+      }else if (res.type === 'dismiss' || res.type === 'person_change') {
+        dispatch({type:'SOCKETNOTICE',data:res});
       }
     });
   }
@@ -79,6 +81,22 @@ export function emitMsg(socket, msg, user, target, type, room, font) {
       ids: target,
       msg,
       type: 'msg',
+      from: user,
+      room,
+    }));
+  }else if(type === 'room_dismiss'){
+    socket.emit('groupMsg', JSON.stringify({
+      ids: target,
+      msg,
+      type: 'dismiss',
+      from: user,
+      room,
+    }));
+  }else if(type === 'person_change'){
+    socket.emit('groupMsg', JSON.stringify({
+      ids: target,
+      msg,
+      type: 'person_change',
       from: user,
       room,
     }));
@@ -366,13 +384,13 @@ export function addMembers(roomId, ids) {
   }
 }
 
-export function authManage(roomId, ids) {
+export function authManage(roomId, ids, adminIds) {
   return async dispatch => {
     const token = localStorage.getItem('chat-token');
     if (!token) {
       return false;
     } else {
-      const data = { roomId, ids };
+      const data = { roomId, ids, adminIds };
       const headers = new Headers({ Authrorization: token });
       const json = await fetch(`${config.url}${config.auth_manage}`, {
         headers,
@@ -381,7 +399,7 @@ export function authManage(roomId, ids) {
       });
       const result = await json.json();
       if (result.success === true) {
-        //todo
+        dispatch({type:'ROOMAUTHCHANGE', rid:roomId, mid:ids, aid:adminIds});
         return true;
       } else {
         return false;
@@ -402,7 +420,7 @@ export function dismissRoom(rid) {
       });
       const result = await json.json();
       if (result.success === true) {
-        //todo
+        dispatch({type:'DISMISSROOM',id:rid});
         return rid;
       } else {
         return false;

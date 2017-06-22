@@ -147,14 +147,24 @@ class App extends Component {
   openAssignWin(config) {
     DialogUtil.open(<AssignWin config={config} />);
   }
-  dealUserChange(user,type,roomId) {
-    console.log(user);
-    console.log(type);
+  dealUserChange(user,type,roomId,...args) {
+    let ids = [];
+    this.props.user.rooms.forEach(v => {
+      if(v._id === roomId){
+        ids = v.members.concat(v.administrators);
+      }
+    });
     if(type === 'auth'){
-      Actions.authManage(roomId,user)().then(res => {
+      const members = args[0].filter(v => {
+        return !~user.indexOf(v.id)
+      }).map(v => {
+        return v.id
+      });
+      this.props.authManage(roomId,members,user).then(res => {
         if(!!res){
           DialogUtil.closeWin('[name=reactDialog]');
           Utils.sendMessage('success','管理权限成功!',1);
+          Actions.emitMsg(this.props.socket, '权限修改','',members.concat(user),'person_change',roomId);
         }else{
           Utils.sendMessage('error','管理权限失败!',1);
         }
@@ -164,6 +174,7 @@ class App extends Component {
         if(!!res){
           DialogUtil.closeWin('[name=reactDialog]');
           Utils.sendMessage('success','添加成员成功!',1);
+          Actions.emitMsg(this.props.socket, '添加成员','',ids.concat(user),'person_change',roomId);
         }else{
           Utils.sendMessage('error','添加成员失败!',1);
         }
@@ -216,7 +227,7 @@ class App extends Component {
                   if(room){
                     const members = room.members.map(v => ({id:v._id,name:v.nickname,username:v.username,key:v._id}));
                     const admins = room.administrators.map(v => ({id:v._id,name:v.nickname,username:v.username,key:v._id}));
-                    res({datas:members.concat(admins),targets:admins.map(v => v._id)});
+                    res({datas:members.concat(admins),targets:admins.map(v => v.id)});
                   }else{
                     rej(false);
                   }
@@ -228,7 +239,16 @@ class App extends Component {
         break;
       }
       case 'dismiss': {
-        this.props.dismissRoom(room._id);
+        const ids = room.members.concat(room.administrators);
+        this.props.dismissRoom(room._id).then(res => {
+          if(res){
+            Utils.sendMessage('success','解散群组成功',1,() => {
+              Actions.emitMsg(this.props.socket, `群${room.roomname}已被群主解散`,'',ids,'room_dismiss',room._id);
+            });
+          }else{
+            Utils.sendMessage('success','解散群组失败',1);
+          }
+        });
         break;
       }
       case 'view': {
@@ -357,7 +377,8 @@ const mapActionToDispatch = (dispatch) => ({
   init: () => { dispatch(Actions.connectInit()) },
   getRoom: (id) => dispatch(Actions.getRoom(id)),
   dismissRoom: (roomId) => dispatch(Actions.dismissRoom(roomId)),
-  quitRoom: (roomId) => dispatch(Actions.quitRoom(roomId))
+  quitRoom: (roomId) => dispatch(Actions.quitRoom(roomId)),
+  authManage: (rid, uids, adminids) => dispatch(Actions.authManage(rid, uids, adminids)),
 })
 
 export default withRouter(connect(mapStateToProp, mapActionToDispatch)(App));

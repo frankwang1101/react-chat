@@ -104,13 +104,15 @@ export function openNotification(newMessage,  history) {
   };
   const btn = (
     <Button type="primary" size="small" onClick={() => btnClick()}>
-      Check
+      OK
     </Button>
   );
   if(newMessage.type === 'user'){
     messageStr = `来自好友${newMessage.user.nickname}`;
   }else if(newMessage.type === 'room'){
     messageStr = `来自群组${newMessage.roomname}`;
+  }else {
+    messageStr = newMessage.title
   }
   notification.open({
     message: messageStr,

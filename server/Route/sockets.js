@@ -19,7 +19,7 @@ module.exports = function (server) {
       const type = 'login';
       socket.user = user;
       users.set(user._id, socket);
-      User.setOnline(user._id,true);
+      User.setOnline(user._id, true);
       io.sockets.emit('broadcast', JSON.stringify({
         user: user,
         date: new Date(),
@@ -35,7 +35,7 @@ module.exports = function (server) {
     });
     socket.on('disconnect', () => {
       if (socket.user) {
-        User.setOnline(socket.user._id,false);
+        User.setOnline(socket.user._id, false);
         users.delete(socket.user._id);
         socket.broadcast.emit('broadcast', JSON.stringify({
           user: socket.user,
@@ -50,12 +50,12 @@ module.exports = function (server) {
       }))
     })
     socket.on('groupMsg', (obj) => {
-      try{
+      try {
         const params = JSON.parse(obj);
         let msOption = {};
         let emitData = {};
-        switch(params.type){
-          case 'becomeMember':{
+        switch (params.type) {
+          case 'becomeMember': {
             emitData = {
               type: 'becomeMember',
               _id: params._id,
@@ -68,8 +68,30 @@ module.exports = function (server) {
             };
             break;
           }
+          case 'dismiss': {
+            emitData = {
+              type: params.type,
+              data:params.room,
+              msg:params.msg
+            }
+            msOption = {
+              title: '群组解散',
+              content: params.msg,
+              type: 'dismiss',
+              data: params.room,
+            }
+            break;
+          }
+          case 'person_change': {
+            emitData = {
+              type: params.type,
+              data:params.room
+            }
+
+            break;
+          }
           case 'msg':
-          default:{
+          default: {
             emitData = {
               type: 'roomMsg',
               msg: params.msg,
@@ -80,32 +102,34 @@ module.exports = function (server) {
               title: '',
               content: params.msg,
               type: 'roomMsg',
-              data: JSON.stringify({user:{
-                _id:params.from._id, 
-                username:params.from.username,
-                nickname:params.from.nickname,
-                avatar:params.from.avatar,
-              },
-              room:{
-                _id:params.room._id,
-                roomname:params.room.roomname,
-              }, date: Date.now()}),
+              data: JSON.stringify({
+                user: {
+                  _id: params.from._id,
+                  username: params.from.username,
+                  nickname: params.from.nickname,
+                  avatar: params.from.avatar,
+                },
+                room: {
+                  _id: params.room._id,
+                  roomname: params.room.roomname,
+                }, date: Date.now()
+              }),
             };
             break;
           }
         }
         params.ids.forEach((v) => {
           let isDeal = false;
-          if(users.has(v)){
+          if (users.has(v)) {
             isDeal = true;
             users.get(v).emit('notification', JSON.stringify(emitData));
           }
-          Object.assign(msOption,{isDeal, toUser:v});
-          if(!isDeal || params.type === 'becomeMember'){
+          Object.assign(msOption, { isDeal, toUser: v });
+          if (!isDeal || params.type === 'becomeMember' || params.type === 'dismiss'){
             Message.create(msOption);
           }
         })
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     })
@@ -143,7 +167,7 @@ module.exports = function (server) {
             data: JSON.stringify(param.user),
             toUser: param.id,
           })
-        } else if(param.type === 'msg') {
+        } else if (param.type === 'msg') {
           Message.create({
             title: '',
             content: param.msg,

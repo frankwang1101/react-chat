@@ -46,6 +46,10 @@ export function renderMsgs(array) {
         res = <div className="msg-row" key={key}><span className="sys-msg"><span className="name">{v.user.nickname}</span>{`退出了聊天室...`}</span></div>
         break;
       }
+      case 'sys':{
+        res = <div className="msg-row" key={key}><span className="sys-msg">{v.msg}</span></div>
+        break;
+      }
       case 'msg': {
         res = <div className="msg-row" key={key}>
           <dt><span className="name">{`${v.user.nickname}`}</span><span className="time">{`  ${moment(v.date).format('YYYY-MM-DD HH:mm:ss')}`}</span></dt>

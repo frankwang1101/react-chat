@@ -71,8 +71,8 @@ module.exports = function (server) {
           case 'dismiss': {
             emitData = {
               type: params.type,
-              data:params.room,
-              msg:params.msg
+              data: params.room,
+              msg: params.msg
             }
             msOption = {
               title: '群组解散',
@@ -85,9 +85,16 @@ module.exports = function (server) {
           case 'person_change': {
             emitData = {
               type: params.type,
-              data:params.room
+              data: params.room
             }
-
+            break;
+          }
+          case 'person_quit': {
+            emitData = {
+              type: params.type,
+              data: params.room,
+              msg:params.msg
+            }
             break;
           }
           case 'msg':
@@ -125,7 +132,7 @@ module.exports = function (server) {
             users.get(v).emit('notification', JSON.stringify(emitData));
           }
           Object.assign(msOption, { isDeal, toUser: v });
-          if (!isDeal || params.type === 'becomeMember' || params.type === 'dismiss'){
+          if (!isDeal || params.type === 'becomeMember' || params.type === 'dismiss') {
             Message.create(msOption);
           }
         })

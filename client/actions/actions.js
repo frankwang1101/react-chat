@@ -58,6 +58,9 @@ export function connectInit(dispatch) {
         dispatch({ type: 'ROOMMSG', msg: { msg: res.msg, room: res.room, from: res.from } });
       }else if (res.type === 'dismiss' || res.type === 'person_change') {
         dispatch({type:'SOCKETNOTICE',data:res});
+      }else if (res.type === 'person_quit'){
+        dispatch({type:'SOCKETNOTICE',data:res});
+        dispatch({ type: 'ROOMMSG', msg: { msg: res.msg, room: {_id:res.data}, type:'sys' },notNeedNotice:true });
       }
     });
   }
@@ -97,6 +100,14 @@ export function emitMsg(socket, msg, user, target, type, room, font) {
       ids: target,
       msg,
       type: 'person_change',
+      from: user,
+      room,
+    }));
+  }else if(type === 'person_quit'){
+    socket.emit('groupMsg', JSON.stringify({
+      ids: target,
+      msg,
+      type: 'person_quit',
       from: user,
       room,
     }));
@@ -441,7 +452,7 @@ export function quitRoom(rid) {
       });
       const result = await json.json();
       if (result.success === true) {
-        //todo
+        dispatch({type:'QUITGROUP',rid});
         return rid;
       } else {
         return false;

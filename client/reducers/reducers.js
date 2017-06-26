@@ -7,7 +7,7 @@ const initState = {
   userMsgs: {},
   roomMsgs: {},
   keys: [],
-  socketNotice:{unique:parseInt(Math.random() * 10000)}
+  socketNotice: { unique: parseInt(Math.random() * 10000) }
 }
 export function chatReducer(state = initState, action) {
   switch (action.type) {
@@ -42,15 +42,16 @@ export function chatReducer(state = initState, action) {
       return Object.assign({}, state, { userMsgs: obj, newMessage: { type: 'user', ...action.msg, show: false } });
     }
     case 'ROOMMSG': {
-      const user = action.msg.from;
+      const user = action.msg.from || {};
       let obj = {};
       if (!state.roomMsgs[action.msg.room._id]) {
-        obj[action.msg.room._id] = [{ msg: action.msg.msg, type: 'msg', user, date: new Date() }]
+        obj[action.msg.room._id] = [{ msg: action.msg.msg, type:action.msg.type || 'msg', user, date: new Date() }]
       } else {
-        state.roomMsgs[action.msg.room._id].push({ msg: action.msg.msg, type: 'msg', user, date: new Date() });
+        state.roomMsgs[action.msg.room._id].push({ msg: action.msg.msg, type:action.msg.type || 'msg', user, date: new Date() });
         obj[action.msg.room._id] = state.roomMsgs[action.msg.room._id]
       }
-      return Object.assign({}, state, { roomMsgs: obj, newMessage: { type: 'room', msg:action.msg.msg, _id: action.msg.room._id, roomname: action.msg.room.roomname, show: false } });
+      const newMessage = action.notNeedNotice?state.newMessage:{ type: 'room', msg: action.msg.msg, _id: action.msg.room._id, roomname: action.msg.room.roomname, show: false };
+      return Object.assign({}, state, { roomMsgs: obj, newMessage });
     }
     case 'UNREADREDUCE': {
       const unread = state.user.unread - 1;
@@ -64,51 +65,60 @@ export function chatReducer(state = initState, action) {
       return Object.assign({}, state, { user });
     }
     case 'FONTCHANGE': {
-      return Object.assign({}, state, { font: action.font});
+      return Object.assign({}, state, { font: action.font });
     }
-    case 'ROOMAUTHCHANGE':{
-      const {rid,mid,aid} = action;
+    case 'ROOMAUTHCHANGE': {
+      const { rid, mid, aid } = action;
       const rooms = state.user.rooms;
       const newRooms = rooms.map(v => {
-        if(v._id === rid){
+        if (v._id === rid) {
           v.members = mid;
           v.administrators = aid;
         }
         return v;
       })
-      const user = Object.assign({}, state.user, {rooms:newRooms});
-      return Object.assign({},state,{user});
+      const user = Object.assign({}, state.user, { rooms: newRooms });
+      return Object.assign({}, state, { user });
     }
-    case 'SOCKETNOTICE':{
+    case 'SOCKETNOTICE': {
       const data = action.data;
-      data.unique = parseInt(Math.random()*100000);
+      data.unique = parseInt(Math.random() * 100000);
       data.roomId = data.data;
       let user = state.user;
-      if(data.type === 'dismiss'){
+      if (data.type === 'dismiss') {
         let rooms = state.user.rooms;
         let temp = [];
         rooms.forEach(v => {
-          if(v._id !== action.id){
+          if (v._id !== action.id) {
             temp.push(v);
           }
         })
-        user = Object.assign({},state.user,{rooms:temp});
+        user = Object.assign({}, state.user, { rooms: temp });
       }
-      return Object.assign({},state,{socketNotice:data, user});
+      return Object.assign({}, state, { socketNotice: data, user });
     }
-    case 'DISMISSROOM':{
+    case 'DISMISSROOM': {
       let rooms = state.user.rooms;
       let temp = [];
       rooms.forEach(v => {
-        if(v._id !== action.id){
+        if (v._id !== action.id) {
           temp.push(v);
         }
       })
-      const user = Object.assign({},state.user,{rooms:temp});
-      return Object.assign({},state,{user});
+      const user = Object.assign({}, state.user, { rooms: temp });
+      return Object.assign({}, state, { user });
     }
-    case 'QUITGROUP':{
-      return state;
+    case 'QUITGROUP': {
+      let user = state.user;
+      let rooms = state.user.rooms;
+      let temp = [];
+      rooms.forEach(v => {
+        if (v._id !== action.rid) {
+          temp.push(v);
+        }
+      })
+      user = Object.assign({}, state.user, { rooms: temp });
+      return Object.assign({}, state, { user });
     }
     default:
       return state;

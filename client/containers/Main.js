@@ -252,10 +252,13 @@ class App extends Component {
         break;
       }
       case 'view': {
-
+          
       }
       case 'exit': {
-        this.props.quitRoom(room._id);
+        const ids = [room.owner].concat(room.member.filter(v => v !== this.props.user._id)).concat(room.administrators.filter(v => v !== this.props.user._id));
+        this.props.quitRoom(room._id).then(rid => {
+          Actions.emitMsg(this.props.socket, `${this.props.user.nickname}退出了聊天室`,'',ids,'person_quit',roomId);
+        });
       }
     }
   }

@@ -225,3 +225,28 @@ export function renderRecord(records, deal) {
     }
   })
 }
+
+export function renderRoomInfo(room){
+  const members = [{name:`群主--${room.owner.nickname}(${room.owner.username})`,id:room.owner._id}]
+  .concat(room.administrators.map(v => ({name:`管理员--${v.nickname}(${v.username})`})))
+  .concat(room.member.map(v => ({name:`${v.nickname}(${v.username})`})));
+  const membersItem = members.map(v => (<li className="room-member-item" key={v.id}>{v.name}</li>));
+  return (<div className="room-info-panel">
+            <div className="row-inline">
+              <lable>群组名称:</lable>
+              <span>{room.roomname}</span>
+            </div>
+            <div className="row-inline">
+              <lable>群组简介:</lable>
+              <span>{room.description}</span>
+            </div>
+            <div className="row-inline">
+              <lable>群组名称:</lable>
+              <ul className="room-member-list">
+              {
+                membersItem
+              }
+              </ul>
+            </div>
+          </div>)
+}

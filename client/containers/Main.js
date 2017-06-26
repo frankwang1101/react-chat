@@ -252,7 +252,9 @@ class App extends Component {
         break;
       }
       case 'view': {
-          
+          this.props.getRoom(room._id).then(room => {
+            DialogUtil.open(Utils.renderRoomInfo(room));
+          });
       }
       case 'exit': {
         const ids = [room.owner].concat(room.member.filter(v => v !== this.props.user._id)).concat(room.administrators.filter(v => v !== this.props.user._id));
